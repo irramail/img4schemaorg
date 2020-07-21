@@ -30,12 +30,12 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let mut con = client.get_connection()?;
   let img = format!("{}", img);
 
-  let _ : () = con.set("schemaJpg", img)?;
+  let _ : () = con.set("schemaImg", img)?;
 
   let mut echo_hello = Command::new("sh");
-  echo_hello.arg("-c").arg("/home/p6/scripts/schemaJpg.sh").spawn().expect("sh command failed to start");
+  echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").spawn().expect("sh command failed to start");
 
-  con.get("schemaJpg")
+  con.get("schemaImg")
 }
 
 fn exists_img() -> redis::RedisResult<bool> {
@@ -49,7 +49,7 @@ fn set_first_run() -> redis::RedisResult<isize> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
-  let _ : () = con.del("schemaJpg")?;
+  let _ : () = con.del("schemaImg")?;
 
   con.get("mayBeSomeKey")
 }
