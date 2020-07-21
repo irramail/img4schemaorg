@@ -73,7 +73,7 @@ fn main() {
 
   let server = ServerBuilder::new(io)
   .threads(3)
-  .start_http(&"127.0.0.1:3032".parse().unwrap())
+  .start_http(&"127.0.0.1:3033".parse().unwrap())
   .unwrap();
 
   server.wait();
