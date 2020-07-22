@@ -69,6 +69,13 @@ fn exists_img() -> redis::RedisResult<bool> {
   con.exists("schemaImg")
 }
 
+fn get_schema_org() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaOrg")
+}
+
 fn set_first_run() -> redis::RedisResult<isize> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
@@ -93,6 +100,11 @@ fn main() {
   io.add_method("exists_img",  | _params | {
     let bool = exists_img().unwrap().to_string();
     Ok(Value::String(bool))
+  });
+
+  io.add_method("get_schema_org",  | _params | {
+    let schema = get_schema_org().unwrap();
+    Ok(Value::String(schema))
   });
 
   let server = ServerBuilder::new(io)
