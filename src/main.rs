@@ -31,7 +31,8 @@ fn div(aw:i32, ah:i32, w:i32, h:i32) -> String {
     <meta itemprop=\"width\" content=\"{w}px\">
     <meta itemprop=\"height\" content=\"{h}px\">
     <meta itemprop=\"name\" content=\"Образец. Размер фото {aw}x{ah}, отношение сторон {aw}:{ah}.\">
-  </div>", aw=aw.to_string(), ah=ah.to_string(), w=w.to_string(), h=h.to_string())
+  </div>
+  ", aw=aw.to_string(), ah=ah.to_string(), w=w.to_string(), h=h.to_string())
 }
 
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
