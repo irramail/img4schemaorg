@@ -25,6 +25,15 @@ fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
   return Ok(result[0..].to_vec());
 }
 
+fn div(aw:i32, ah:i32, w:i32, h:i32) -> String {
+  format!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;>
+    <link itemprop=\"contentUrl\" href=\"/schemaImg_{aw}_{ah}_{h}.jpg\">
+    <meta itemprop=\"width\" content=\"{w}px\">
+    <meta itemprop=\"height\" content=\"{h}px\">
+    <meta itemprop=\"name\" content=\"Образец. Размер фото {aw}x{ah}, отношение сторон {aw}:{ah}.\">
+  </div>", aw=aw.to_string(), ah=ah.to_string(), w=w.to_string(), h=h.to_string())
+}
+
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
@@ -34,6 +43,20 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
 
   let mut echo_hello = Command::new("sh");
   echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").spawn().expect("sh command failed to start");
+
+  let div = format!("{}{}{}{}{}{}{}{}{}{}"
+                       , div(16, 9, 640, 360)
+                       , div(16, 9, 853, 480)
+                       , div(16, 9, 1280, 720)
+                       , div(16, 9, 1920, 1080)
+                       , div(4, 3, 640, 480)
+                       , div(4, 3, 1280, 960)
+                       , div(4, 3, 1920, 1440)
+                       , div(1, 1, 640, 640)
+                       , div(1, 1, 1280, 1280)
+                       , div(1, 1, 1920, 1920));
+
+  let _ : () = con.set( "schemaOrg", div)?;
 
   con.get("schemaImg")
 }
