@@ -30,7 +30,7 @@ fn div(aw:i32, ah:i32, w:i32, h:i32) -> String {
     <link itemprop=\"contentUrl\" href=\"/schemaImg_{aw}_{ah}_{h}.jpg\">
     <meta itemprop=\"width\" content=\"{w}px\">
     <meta itemprop=\"height\" content=\"{h}px\">
-    <meta itemprop=\"name\" content=\"Образец. Размер фото {aw}x{ah}, отношение сторон {aw}:{ah}.\">
+    <meta itemprop=\"name\" content=\"Образец. Размер фото {w}x{h}, отношение сторон {aw}:{ah}.\">
   </div>
   ", aw=aw.to_string(), ah=ah.to_string(), w=w.to_string(), h=h.to_string())
 }
