@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 jsonrpc-http-server = "14.0"
 redis = "0.13.0"
+url = "2.1.1"

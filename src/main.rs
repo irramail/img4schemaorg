@@ -1,4 +1,5 @@
 use std::process::Command;
+use url::{Url, ParseError};
 extern crate redis;
 
 use redis::{Commands};
@@ -26,7 +27,7 @@ fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
 }
 
 fn div(aw:i32, ah:i32, w:i32, h:i32, url: String, fname: String, description: String) -> String {
-  format!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;>
+  format!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
     <link itemprop=\"contentUrl\" href=\"{url}/{fname}_{aw}_{ah}_{h}_1.jpg\">
     <meta itemprop=\"width\" content=\"{w}px\">
     <meta itemprop=\"height\" content=\"{h}px\">
@@ -68,6 +69,10 @@ fn get_description() -> redis::RedisResult<String> {
 
   con.get("schemaImgDescription")
 }
+fn get_path(url : &str) -> Result<Url, ParseError> {
+  let parsed = Url::parse(url)?;
+  Ok(parsed)
+}
 
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
@@ -80,10 +85,36 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").spawn().expect("sh command failed to start");
 
   let url=get_url().unwrap();
+  let path = get_path(url.as_str()).unwrap();
   let fname=get_fname().unwrap();
   let description =  get_description().unwrap();
 
-  let div = format!("{}{}{}{}{}{}{}{}{}{}"
+  println!("{}",  path.path());
+/*
+  <div itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject" class="ImageObject_cont">
+    <img decoding="async" itemprop="contentUrl" with="100%" sizes="(max-width: 1170px) 100vw, 1170px" srcset="
+/wp-content/uploads/porolon-320-240.jpg 320w,
+/wp-content/uploads/porolon-320-320.jpg 320w,
+/wp-content/uploads/porolon-426-240.jpg 426w,
+/wp-content/uploads/porolon-640-480.jpg 640w,
+/wp-content/uploads/porolon-640-640.jpg 640w,
+/wp-content/uploads/porolon-854-480.jpg 854w,
+/wp-content/uploads/porolon-960-720.jpg 960w,
+/wp-content/uploads/porolon-1080-1080.jpg 1080w,
+/wp-content/uploads/porolon-1280-720.jpg 1280w,
+/wp-content/uploads/porolon-1280-1280.jpg 1280w,
+/wp-content/uploads/porolon-1440-1080.jpg 1440w,
+/wp-content/uploads/porolon-1920-1080.jpg 1920w"
+  src="/wp-content/uploads/porolon-1.jpg"
+  alt="Поролон белого цвета, толщина 40мм, рулон.">
+    <meta itemprop="name" content="Поролон, рулон, цвет белый, 40мм толщиной.">
+    <meta itemprop="description" content="Мебельный поролон или пенополиуретан, продажа в рулонах габаритов 1000мм на 2000мм, толщина 40мм, производство Россия.">
+    <meta itemprop="width" content="2272px">
+    <meta itemprop="height" content="1704px">
+    */
+
+
+  let div = format!("{}{}{}{}{}{}{}{}{}{}</div>"
                        , div(16, 9, 640, 360, url.clone(), fname.clone(), description.clone())
                        , div(16, 9, 853, 480, url.clone(), fname.clone(), description.clone())
                        , div(16, 9, 1280, 720, url.clone(), fname.clone(), description.clone())
