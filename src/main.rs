@@ -76,7 +76,7 @@ fn get_path(url : &str) -> Result<Url, ParseError> {
 
 fn gen_srcset(path :&str, fname: &str) -> String {
   let fullpath = format!("{}/{}", &path, &fname);
-  format!("{},\n {},\n {}\n",format!("{}_o_640_1.jpg 640w", fullpath), format!("{}_o_1280_1.jpg 1280w", fullpath), format!("{}_o_1920_1.jpg 1920w", fullpath))
+  format!("srcset=\"{},\n{},\n{}\"",format!("{}_o_640_1.jpg 640w", fullpath), format!("{}_o_1280_1.jpg 1280w", fullpath), format!("{}_o_1920_1.jpg 1920w", fullpath))
 }
 
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
@@ -92,27 +92,15 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let url=get_url().unwrap();
   let path = get_path(url.as_str()).unwrap();
   let fname= get_fname().unwrap();
+  let alt = "test alt";
   let description =  get_description().unwrap();
 
   let srcset = gen_srcset(path.path(), fname.as_str());
-println!("{}", srcset);
+
+  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 640px, 1280px\" {}\nsrc=\"{}/{}\"\nalt=\"{}\">", srcset, path.path(), fname.as_str(), alt);
 /*
-  <div itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject" class="ImageObject_cont">
-    <img decoding="async" itemprop="contentUrl" with="100%" sizes="(max-width: 1280px) 100vw, 1280px" srcset="
-/wp-content/uploads/porolon-320-240.jpg 320w,
-/wp-content/uploads/porolon-320-320.jpg 320w,
-/wp-content/uploads/porolon-426-240.jpg 426w,
-/wp-content/uploads/porolon-640-480.jpg 640w,
-/wp-content/uploads/porolon-640-640.jpg 640w,
-/wp-content/uploads/porolon-854-480.jpg 854w,
-/wp-content/uploads/porolon-960-720.jpg 960w,
-/wp-content/uploads/porolon-1080-1080.jpg 1080w,
-/wp-content/uploads/porolon-1280-720.jpg 1280w,
-/wp-content/uploads/porolon-1280-1280.jpg 1280w,
-/wp-content/uploads/porolon-1440-1080.jpg 1440w,
-/wp-content/uploads/porolon-1920-1080.jpg 1920w"
-  src="/wp-content/uploads/porolon-1.jpg"
-  alt="Поролон белого цвета, толщина 40мм, рулон.">
+
+
     <meta itemprop="name" content="Поролон, рулон, цвет белый, 40мм толщиной.">
     <meta itemprop="description" content="Мебельный поролон или пенополиуретан, продажа в рулонах габаритов 1000мм на 2000мм, толщина 40мм, производство Россия.">
     <meta itemprop="width" content="2272px">
@@ -120,7 +108,7 @@ println!("{}", srcset);
     */
 
 
-  let div = format!("{}{}{}{}{}{}{}{}{}{}</div>"
+  let div = format!("{}{}{}{}{}{}{}{}{}{}"
                        , div(16, 9, 640, 360, url.clone(), fname.clone(), description.clone())
                        , div(16, 9, 854, 480, url.clone(), fname.clone(), description.clone())
                        , div(16, 9, 1280, 720, url.clone(), fname.clone(), description.clone())
@@ -132,7 +120,9 @@ println!("{}", srcset);
                        , div(1, 1, 1280, 1280, url.clone(), fname.clone(), description.clone())
                        , div(1, 1, 1920, 1920, url, fname, description));
 
-  let _ : () = con.set( "schemaOrg", div)?;
+  let wrapper = format!("<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">\n{}{}</div>", img, div);
+
+  let _ : () = con.set( "schemaOrg", wrapper)?;
 
   con.get("schemaImg")
 }
