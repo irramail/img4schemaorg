@@ -74,6 +74,11 @@ fn get_path(url : &str) -> Result<Url, ParseError> {
   Ok(parsed)
 }
 
+fn gen_srcset(path :&str, fname: &str) -> String {
+  let fullpath = format!("{}/{}", &path, &fname);
+  format!("{},\n {},\n {}\n",format!("{}_o_640_1.jpg 640w", fullpath), format!("{}_o_1280_1.jpg 1280w", fullpath), format!("{}_o_1920_1.jpg 1920w", fullpath))
+}
+
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
@@ -86,13 +91,14 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
 
   let url=get_url().unwrap();
   let path = get_path(url.as_str()).unwrap();
-  let fname=get_fname().unwrap();
+  let fname= get_fname().unwrap();
   let description =  get_description().unwrap();
 
-  println!("{}",  path.path());
+  let srcset = gen_srcset(path.path(), fname.as_str());
+println!("{}", srcset);
 /*
   <div itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject" class="ImageObject_cont">
-    <img decoding="async" itemprop="contentUrl" with="100%" sizes="(max-width: 1170px) 100vw, 1170px" srcset="
+    <img decoding="async" itemprop="contentUrl" with="100%" sizes="(max-width: 1280px) 100vw, 1280px" srcset="
 /wp-content/uploads/porolon-320-240.jpg 320w,
 /wp-content/uploads/porolon-320-320.jpg 320w,
 /wp-content/uploads/porolon-426-240.jpg 426w,
@@ -116,7 +122,7 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
 
   let div = format!("{}{}{}{}{}{}{}{}{}{}</div>"
                        , div(16, 9, 640, 360, url.clone(), fname.clone(), description.clone())
-                       , div(16, 9, 853, 480, url.clone(), fname.clone(), description.clone())
+                       , div(16, 9, 854, 480, url.clone(), fname.clone(), description.clone())
                        , div(16, 9, 1280, 720, url.clone(), fname.clone(), description.clone())
                        , div(16, 9, 1920, 1080, url.clone(), fname.clone(), description.clone())
                        , div(4, 3, 640, 480, url.clone(), fname.clone(), description.clone())
