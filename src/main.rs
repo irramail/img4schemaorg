@@ -45,6 +45,9 @@ fn set_url_and_fname(url_and_fname: &str) -> redis::RedisResult<isize> {
   let _ : () = con.set("schemaImgURL", collect_url_and_fname[0])?;
   let _ : () = con.set("schemaImgFileName", collect_url_and_fname[1])?;
   let _ : () = con.set("schemaImgDescription", collect_url_and_fname[2])?;
+  let _ : () = con.set("schemaImgAlt", collect_url_and_fname[3])?;
+  let _ : () = con.set("schemaImgMetaName", collect_url_and_fname[4])?;
+  let _ : () = con.set("schemaImgMetaDescription", collect_url_and_fname[5])?;
 
   con.get("schemaImgFileName")
 }
@@ -69,9 +72,45 @@ fn get_description() -> redis::RedisResult<String> {
 
   con.get("schemaImgDescription")
 }
+
+fn get_width() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaImg1Width")
+}
+
+fn get_height() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaImg1Height")
+}
+
 fn get_path(url : &str) -> Result<Url, ParseError> {
   let parsed = Url::parse(url)?;
   Ok(parsed)
+}
+
+fn get_meta_name() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaImgMetaName")
+}
+
+fn get_meta_description() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaImgMetaDescription")
+}
+
+fn get_alt() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaImgAlt")
 }
 
 fn gen_srcset(path :&str, fname: &str) -> String {
@@ -92,21 +131,16 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let url=get_url().unwrap();
   let path = get_path(url.as_str()).unwrap();
   let fname= get_fname().unwrap();
-  let alt = "test alt";
+  let alt = get_alt().unwrap();
   let description =  get_description().unwrap();
 
   let srcset = gen_srcset(path.path(), fname.as_str());
 
-  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 640px, 1280px\" {}\nsrc=\"{}/{}\"\nalt=\"{}\">", srcset, path.path(), fname.as_str(), alt);
-/*
+  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), fname.as_str(), alt);
 
-
-    <meta itemprop="name" content="Поролон, рулон, цвет белый, 40мм толщиной.">
-    <meta itemprop="description" content="Мебельный поролон или пенополиуретан, продажа в рулонах габаритов 1000мм на 2000мм, толщина 40мм, производство Россия.">
-    <meta itemprop="width" content="2272px">
-    <meta itemprop="height" content="1704px">
-    */
-
+  let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", get_meta_name().unwrap());
+  let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", get_meta_description().unwrap());
+  let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", get_width().unwrap(), get_height().unwrap());
 
   let div = format!("{}{}{}{}{}{}{}{}{}{}"
                        , div(16, 9, 640, 360, url.clone(), fname.clone(), description.clone())
@@ -120,7 +154,9 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
                        , div(1, 1, 1280, 1280, url.clone(), fname.clone(), description.clone())
                        , div(1, 1, 1920, 1920, url, fname, description));
 
-  let wrapper = format!("<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">\n{}{}</div>", img, div);
+  let bwrapper = "<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">";
+  let ewrapper = "</div>";
+  let wrapper = format!("{}\n{}\n{}\n{}\n{}\n{}\n{}", bwrapper, img, meta_name, meta_description, meta_width_height, div, ewrapper);
 
   let _ : () = con.set( "schemaOrg", wrapper)?;
 
