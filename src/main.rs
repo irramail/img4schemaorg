@@ -28,7 +28,7 @@ fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
 
 fn div(aw:i32, ah:i32, w:i32, h:i32, url: String, fname: String, description: String) -> String {
   format!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
-    <link itemprop=\"contentUrl\" href=\"{url}/{fname}_{aw}_{ah}_{h}_1.jpg\">
+    <link itemprop=\"contentUrl\" href=\"{url}/{fname}_{aw}_{ah}_{w}_1.jpg\">
     <meta itemprop=\"width\" content=\"{w}px\">
     <meta itemprop=\"height\" content=\"{h}px\">
     <meta itemprop=\"name\" content=\"{description}. Размер фото {w}x{h}, отношение сторон {aw}:{ah}.\">
