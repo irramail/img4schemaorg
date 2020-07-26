@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+        <style>
+            body { background-color: rgb(180, 180, 180); color: white; }
+            img { border: 1px solid white; margin: 5px; }
+            .large { width: 100%; float: right; }
+            .selected { margin: 0; border: 6px solid #60b5cc; }
+            .content { margin: 40px auto; width: 100%; }
+            #thumbnails { width: 100%; float: left; }
+            h1 { font-family: Verdana; color: #60b5cc; }
+        </style>
+    </head>
+    <body>
+        <div id="text">
+            <input type="text" id="url" name="url" placeholder="https://" size="50">
+            <input type="text" id="fname" name="fname" placeholder="Image">
+            <input type="button" value="Set" onClick="set()"><br />
+            <input type="text" id="alt" name="alt" placeholder="alt" size="132"><br />
+            <input type="text" id="metaName" name="metaName" placeholder="Meta name" size="132"><br />
+            <input type="text" id="metaDescription" name="metaDescription" placeholder="Meta description" size="132"><br />
+            <input type="text" id="description" name="description" placeholder="Thumbnail description" size="132"><br />
+            <textarea rows="30" cols="130" name="text" id="textLines" wrap="off"></textarea>
+            <div></div>
+            <div id="wrapperTrack">
+                <div id="track">
+                    <img src="/schema/schemaImg_1.jpg" alt="img" height="100px">
+                    <a href="/schema/schema.tgz" download style="position: relative; top: -90px;">Download</a>
+                </div>
+            </div>
+        </div>
+        <script>
+
+            function set()
+            {
+                var xhttpSet = new XMLHttpRequest();
+                xhttpSet.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        //ok
+                    }
+                };
+                xhttpSet.open("POST", "/");
+                xhttpSet.setRequestHeader("Content-Type", "application/json");
+                xhttpSet.send(JSON.stringify({"jsonrpc": "2.0", "method": "set", "id": 1, "params": [document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value]}));
+            }
+
+            window.onload = function () {
+
+                var trackTimerVar = setInterval(trackTimer, 5000);
+
+                function trackTimer()
+                {
+                    var xhttpSTexts = new XMLHttpRequest();
+                    xhttpSTexts.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            var SText = JSON.parse(this.response).result;
+                            if (SText === 'false') {
+                                var track = document.getElementById('track');
+                                if (track.hidden) {
+                                    var wrapperTrack = document.getElementById('wrapperTrack');
+
+                                    innerHTML = '<div id="track"><img src="/schema/schemaImg_1.jpg?nocache=' + Math.floor(Math.random() * 10000000) + '" alt="img" height="100px"><a href="/schema/schema.tgz" download style="position: relative; top: -90px;">Download</a></div>';
+                                    wrapperTrack.innerHTML = innerHTML;
+
+                                    var txts = document.getElementById('textLines');
+
+                                    var xhttpTexts = new XMLHttpRequest();
+                                    xhttpTexts.onreadystatechange = function () {
+                                        if (this.readyState == 4 && this.status == 200) {
+                                            var allText = JSON.parse(this.response).result;
+                                            txts.innerHTML = allText;
+                                        }
+                                    };
+                                    xhttpTexts.open("POST", "/");
+                                    xhttpTexts.setRequestHeader("Content-Type", "application/json");
+                                    xhttpTexts.send(JSON.stringify({"jsonrpc": "2.0", "method": "get_schema_org", "id": 1, "params": []}));
+                                }
+
+                            } else {
+                                var track = document.getElementById('track');
+                                if (!track.hidden) {
+                                    track.hidden = true;
+                                }
+                            }
+                        }
+                    };
+                    xhttpSTexts.open("POST", "/");
+                    xhttpSTexts.setRequestHeader("Content-Type", "application/json");
+                    xhttpSTexts.send(JSON.stringify({"jsonrpc": "2.0", "method": "exists_img", "id": 1, "params": []}));
+                }
+            }
+        </script>
+    </body>
+</html>
+

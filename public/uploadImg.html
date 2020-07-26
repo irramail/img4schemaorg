@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            body { background-color: rgb(44, 44, 44); color: white; }
+            img { border: 1px solid white; margin: 5px; }
+            .large { width: 100%; float: right; }
+            .selected { margin: 0; border: 6px solid #60b5cc; }
+            .content { margin: 40px auto; width: 100%; }
+            #thumbnails { width: 100%; float: left; }
+            h1 { font-family: Verdana; color: #60b5cc; }
+        </style>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script src="elmImg.js"></script>
+        <script>
+            Elm.Main.init({node: document.getElementById("app")});
+        </script>
+    </body>
+</html>
