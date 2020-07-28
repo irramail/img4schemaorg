@@ -126,7 +126,7 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let _ : () = con.set("schemaImg", img)?;
 
   let mut echo_hello = Command::new("sh");
-  let status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
+  let _status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
 
   let url=get_url().unwrap();
   let path = get_path(url.as_str()).unwrap();
