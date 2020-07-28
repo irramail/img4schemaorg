@@ -1,4 +1,4 @@
-#!/usr/bin/env amm
+#!/usr/bin/env amm --no-remote-logging
 
 import $ivy.`net.debasishg:redisclient_2.13:3.30`
 
