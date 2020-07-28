@@ -140,6 +140,7 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
 
   let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", get_meta_name().unwrap());
   let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", get_meta_description().unwrap());
+  println!("{} {}", get_width().unwrap(), get_height().unwrap());
   let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", get_width().unwrap(), get_height().unwrap());
 
   let div = format!("{}{}{}{}{}{}{}{}{}{}"
