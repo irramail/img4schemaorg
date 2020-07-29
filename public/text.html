@@ -42,7 +42,7 @@
                         //ok
                     }
                 };
-                xhttpSet.open("POST", "/");
+                xhttpSet.open("POST", "/api");
                 xhttpSet.setRequestHeader("Content-Type", "application/json");
                 xhttpSet.send(JSON.stringify({"jsonrpc": "2.0", "method": "set", "id": 1, "params": [document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value]}));
             }
@@ -74,7 +74,7 @@
                                             txts.innerHTML = allText;
                                         }
                                     };
-                                    xhttpTexts.open("POST", "/");
+                                    xhttpTexts.open("POST", "/api");
                                     xhttpTexts.setRequestHeader("Content-Type", "application/json");
                                     xhttpTexts.send(JSON.stringify({"jsonrpc": "2.0", "method": "get_schema_org", "id": 1, "params": []}));
                                 }
@@ -87,7 +87,7 @@
                             }
                         }
                     };
-                    xhttpSTexts.open("POST", "/");
+                    xhttpSTexts.open("POST", "/api");
                     xhttpSTexts.setRequestHeader("Content-Type", "application/json");
                     xhttpSTexts.send(JSON.stringify({"jsonrpc": "2.0", "method": "exists_img", "id": 1, "params": []}));
                 }
