@@ -28,6 +28,21 @@ val ares = r.get("schemaImgAspectResolution1").getOrElse("1:1_640x640,1280x1280,
 
 println(ares)
 
+ares.split(";").foreach( ar => {
+  val item_ar = ar.split('_')
+  val aa = item_ar(0).split(':')
+  val a_w = aa(0)
+  val a_h = aa(1)
+
+  item_ar(1).split(',').foreach( res => {
+    val item_res = res.split('x')
+    val res_w = item_res(0)
+    val res_h = item_res(1)
+
+    println(a_w, a_h, res_w, res_h)
+  })
+})
+
 for ((a, b, x, s)  <- List(
     ("16", "9", "x", List(("640", "360"), ("854", "480"), ("1280", "720"), ("1920", "1080")))
 	, ("4", "3", "x", List(("640", "480"), ("1280", "960"), ("1920", "1440")))

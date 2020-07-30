@@ -174,8 +174,8 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
     let a : Vec<&str> = item_ar[0].split_terminator(':').collect();
 
     //1 1
-    let a_h = a[0];
-    let a_w = a[1];
+    let a_w = a[0];
+    let a_h = a[1];
 
     //640x640,1280x1280,1920x1920
     for res in item_ar[1].split_terminator(',') {
