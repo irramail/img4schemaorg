@@ -41,8 +41,7 @@ for ((a, b, x, s)  <- List(
 			}
 		}
 }
-val lnfn = "schemaImg"
-(s"ln -s $wdfn$u$c.jpg $wd$lnfn$u$c.jpg").!
+
 
 val imgWidth=(s"identify -format '%[fx:w]' $wdfn$u$c.jpg").!!
 val imgHeight=(s"identify -format '%[fx:h]' $wdfn$u$c.jpg").!!
@@ -54,6 +53,9 @@ val fntgz = "schema.tgz"
 val tmpfn = s"/tmp/$fntgz"
 (s"tar -czf $tmpfn -C $wd .").!
 (s"mv $tmpfn $wd").!
+
+val lnfn = "schemaImg"
+(s"ln -s $wdfn$u$c.jpg $wd$lnfn$u$c.jpg").!
 
 ("sleep 5").!
 
