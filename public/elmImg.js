@@ -6432,7 +6432,7 @@ var $author$project$Main$view = function (model) {
 				'border',
 				model.z ? '6px dashed purple' : '6px dashed #ccc'),
 				A2($elm$html$Html$Attributes$style, 'border-radius', '20px'),
-				A2($elm$html$Html$Attributes$style, 'width', '94%'),
+				A2($elm$html$Html$Attributes$style, 'width', '50%'),
 				A2($elm$html$Html$Attributes$style, 'margin', '10px auto'),
 				A2($elm$html$Html$Attributes$style, 'padding', '20px'),
 				A2($elm$html$Html$Attributes$style, 'display', 'flex'),
