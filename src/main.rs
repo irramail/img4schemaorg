@@ -42,7 +42,8 @@ fn set_url_and_fname(url_and_fname: &str) -> redis::RedisResult<isize> {
 
   let collect_url_and_fname: Vec<&str> = url_and_fname.split("|").collect();
 
-  let _ : () = con.set("schemaImgURL", collect_url_and_fname[0])?;
+  let url =  if collect_url_and_fname[0].len() < 7 { collect_url_and_fname[0] } else {"https://test.domain/upload/images"};
+  let _ : () = con.set("schemaImgURL", url)?;
   let _ : () = con.set("schemaImgFileName", collect_url_and_fname[1])?;
   let _ : () = con.set("schemaImgDescription", collect_url_and_fname[2])?;
   let _ : () = con.set("schemaImgAlt", collect_url_and_fname[3])?;
@@ -141,7 +142,7 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let mut echo_hello = Command::new("sh");
   let _status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
 
-  let url=get_url().unwrap();
+  let url= get_url().unwrap();
   let path = get_path(url.as_str()).unwrap();
   let fname= get_fname().unwrap();
   let alt = get_alt().unwrap();
