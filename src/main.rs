@@ -42,9 +42,12 @@ fn set_url_and_fname(url_and_fname: &str) -> redis::RedisResult<isize> {
 
   let collect_url_and_fname: Vec<&str> = url_and_fname.split("|").collect();
 
-  let url =  if collect_url_and_fname[0].len() < 7 { collect_url_and_fname[0] } else {"https://test.domain/upload/images"};
-  println!("{:?}", url);
-  let _ : () = con.set("schemaImgURL", url)?;
+  if collect_url_and_fname[0].len() < 7 {
+    let _ : () = con.set("schemaImgURL", collect_url_and_fname[0])?;
+  } else {
+    let _ : () = con.set("schemaImgURL", "https://test.domain/upload/images")?;
+  };
+
   let _ : () = con.set("schemaImgFileName", collect_url_and_fname[1])?;
   let _ : () = con.set("schemaImgDescription", collect_url_and_fname[2])?;
   let _ : () = con.set("schemaImgAlt", collect_url_and_fname[3])?;
