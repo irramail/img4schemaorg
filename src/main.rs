@@ -42,12 +42,10 @@ fn set_url_and_fname(url_and_fname: &str) -> redis::RedisResult<isize> {
 
   let collect_url_and_fname: Vec<&str> = url_and_fname.split("|").collect();
 
-  if collect_url_and_fname[0].len() >= 8  {
+  if collect_url_and_fname[0].len() >= 9  {
     let _ : () = con.set("schemaImgURL", collect_url_and_fname[0])?;
-    println!("{}", collect_url_and_fname[0]);
   } else {
     let _ : () = con.set("schemaImgURL", "https://test.domain/upload/images")?;
-    println!("https://test.domain/upload/images");
   };
 
   let _ : () = con.set("schemaImgFileName", collect_url_and_fname[1])?;
@@ -130,7 +128,6 @@ fn get_aspect_resolution() -> redis::RedisResult<String> {
 
 fn gen_srcset(path :&str, fname: &str) -> String {
   let fullpath = format!("{}/{}", &path, &fname);
-  println!("{}", fullpath);
   format!("srcset=\"{},\n{},\n{},\n{}\"",
           format!("{}_o_320_1.jpg 320w", fullpath),
           format!("{}_o_640_1.jpg 640w", fullpath),
@@ -191,20 +188,6 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
 
   }
 
-  println!("{}", div_all);
-/*
-  let div = format!("{}{}{}{}{}{}{}{}{}{}"
-                       , div(16, 9, 640, 360, url.clone(), fname.clone(), description.clone())
-                       , div(16, 9, 854, 480, url.clone(), fname.clone(), description.clone())
-                       , div(16, 9, 1280, 720, url.clone(), fname.clone(), description.clone())
-                       , div(16, 9, 1920, 1080, url.clone(), fname.clone(), description.clone())
-                       , div(4, 3, 640, 480, url.clone(), fname.clone(), description.clone())
-                       , div(4, 3, 1280, 960, url.clone(), fname.clone(), description.clone())
-                       , div(4, 3, 1920, 1440, url.clone(), fname.clone(), description.clone())
-                       , div(1, 1, 640, 640, url.clone(), fname.clone(), description.clone())
-                       , div(1, 1, 1280, 1280, url.clone(), fname.clone(), description.clone())
-                       , div(1, 1, 1920, 1920, url, fname, description));
-*/
   let bwrapper = "<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">";
   let ewrapper = "</div>";
   let wrapper = format!("{}\n{}\n{}\n{}\n{}\n{}\n{}", bwrapper, img, meta_name, meta_description, meta_width_height, div_all, ewrapper);
