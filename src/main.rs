@@ -48,6 +48,7 @@ fn set_url_and_fname(url_and_fname: &str) -> redis::RedisResult<isize> {
   let _ : () = con.set("schemaImgAlt", collect_url_and_fname[3])?;
   let _ : () = con.set("schemaImgMetaName", collect_url_and_fname[4])?;
   let _ : () = con.set("schemaImgMetaDescription", collect_url_and_fname[5])?;
+  let _ : () = con.set("schemaImgAspectResolution", collect_url_and_fname[6])?;
 
   con.get("schemaImgFileName")
 }
@@ -113,9 +114,21 @@ fn get_alt() -> redis::RedisResult<String> {
   con.get("schemaImgAlt")
 }
 
+fn get_aspect_resolution() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaImgAspectResolution")
+}
+
 fn gen_srcset(path :&str, fname: &str) -> String {
   let fullpath = format!("{}/{}", &path, &fname);
-  format!("srcset=\"{},\n{},\n{}\"",format!("{}_o_640_1.jpg 640w", fullpath), format!("{}_o_1280_1.jpg 1280w", fullpath), format!("{}_o_1920_1.jpg 1920w", fullpath))
+  format!("srcset=\"{},\n{},\n{},\n{}\"",
+          format!("{}_o_320_1.jpg 320w", fullpath),
+          format!("{}_o_640_1.jpg 640w", fullpath),
+          format!("{}_o_1280_1.jpg 1280w", fullpath),
+          format!("{}_o_1920_1.jpg 1920w", fullpath)
+  )
 }
 
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
@@ -143,6 +156,34 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
 
   //println!("{} {}", get_width().unwrap(), get_height().unwrap());
   let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", get_width().unwrap(), get_height().unwrap());
+
+  let ares = get_aspect_resolution().unwrap();
+
+  let mut test_ars : String = "".to_string();
+  //1:1_640x640,1280x1280,1920x1920;4:3_640x480,1280x960,1920x1440;16:9_640x360,854x480,1280x720,1920x1080
+  for ar in ares.split_terminator(';') {
+    //1:1_640x640,1280x1280,1920x1920
+    let item_ar : Vec<&str> = ar.split_terminator('_').collect();
+
+    //1:1
+    let a : Vec<&str> = item_ar[0].split_terminator(':').collect();
+
+    //1 1
+    let a_h = a[0];
+    let a_w = a[1];
+
+    //640x640,1280x1280,1920x1920
+    for res in item_ar[1].split_terminator(',') {
+      let item_res : Vec<&str> = res.split_terminator('x').collect();
+      let res_w = item_res[0];
+      let res_h = item_res[1];
+
+      test_ars = format!("{}{}", test_ars, div(a_w.parse().unwrap(), a_h.parse().unwrap(), res_w.parse().unwrap(), res_h.parse().unwrap(), url.clone(), fname.clone(), description.clone()));
+    }
+
+  }
+
+  println!("{}", test_ars);
 
   let div = format!("{}{}{}{}{}{}{}{}{}{}"
                        , div(16, 9, 640, 360, url.clone(), fname.clone(), description.clone())
