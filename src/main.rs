@@ -130,6 +130,7 @@ fn get_aspect_resolution() -> redis::RedisResult<String> {
 
 fn gen_srcset(path :&str, fname: &str) -> String {
   let fullpath = format!("{}/{}", &path, &fname);
+  println!("{}", fullpath);
   format!("srcset=\"{},\n{},\n{},\n{}\"",
           format!("{}_o_320_1.jpg 320w", fullpath),
           format!("{}_o_640_1.jpg 640w", fullpath),
