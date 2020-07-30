@@ -15,6 +15,7 @@
         </style>
     </head>
     <body>
+      <div id="blockAspectRes" name="blockAsppectRes"></div>
         <div id="text">
             <input type="text" id="url" name="url" placeholder="https://" size="50">
             <input type="text" id="fname" name="fname" placeholder="Image">
@@ -34,8 +35,30 @@
         </div>
         <script>
 
+	  
             function set()
-            {
+          {
+	      var stringOfResolutions = '';
+
+	      var tmp = '';
+	      let map5 = new Map();
+	      
+	      Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(x => x.id).forEach(str => str.split("_").map((x) => {
+		  if (x.includes(":")){
+		      tmp=x
+		  } else {
+		      if (map5.get(tmp)) {
+			  map5.set(tmp, map5.get(tmp) + ',' + x)
+		      } else {
+			  map5.set(tmp, x )
+ 		      }
+		  }
+	      } ));
+
+
+	      map5.forEach((v,k,map) => { stringOfResolutions = stringOfResolutions + ';' + k + '_' + v });
+
+	      
                 var xhttpSet = new XMLHttpRequest();
                 xhttpSet.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
@@ -44,11 +67,63 @@
                 };
                 xhttpSet.open("POST", "/api");
                 xhttpSet.setRequestHeader("Content-Type", "application/json");
-                xhttpSet.send(JSON.stringify({"jsonrpc": "2.0", "method": "set", "id": 1, "params": [document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value]}));
+              xhttpSet.send(JSON.stringify({"jsonrpc": "2.0", "method": "set", "id": 1, "params": [document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value + '|' + stringOfResolutions.substring(1)]}));
             }
 
-            window.onload = function () {
+          window.onload = function () {
 
+	      let aspectRes = [
+		  [[1, 1],
+		   [
+		       [640, 640],
+		       [1280, 1280],
+		       [1920, 1920]
+		   ]
+		  ],
+		  [[4, 3],
+		   [
+		       [640, 480],
+		       [1280, 960],
+		       [1920, 1440]
+		   ]
+		  ],
+		  [[16, 9],
+		   [
+		       [640, 360],
+		       [854, 480],
+		       [1280, 720],
+		       [1920, 1080]
+		   ]
+		  ]
+	      ];
+
+	      function addAspectResToBlock(aX, aY, w, h) {
+		  let id = aX + ":" + aY + "_" + w + "x" + h;
+		  let block = document.getElementById('blockAspectRes');
+		  let checkBox = '<input type="checkbox" id="'+ id+ '" name="resolution_' + id+ '" value="' + id + '" checked class="res">';
+		  let label = '<label for="' + id + '" style="margin-right: 10px;">' + id.replace(/_/, ' ') + '</label>';
+		  block.innerHTML = block.innerHTML + "<span>" + checkBox + label + "</span>";
+	      }
+	      
+	      aspectRes.forEach(
+		  oneAspect => oneAspect[1].forEach(
+		      oneRes => addAspectResToBlock(oneAspect[0][0], oneAspect[0][1], oneRes[0], oneRes[1])
+		  )
+	      );
+	      
+	      if(!localStorage.getItem('resolution')) {
+		  		  localStorage.setItem('resolution', '');
+}
+	      setCheckers();
+
+	      function setCheckers() {
+		  for (checker in localStorage.getItem('resolution').split(',')) {
+		      if (checker.length > 0) {
+			  
+		      }
+		  }
+	      }
+	      
                 var trackTimerVar = setInterval(trackTimer, 5000);
 
                 function trackTimer()
