@@ -48,6 +48,7 @@ fn set_url_and_fname(url_and_fname: &str) -> redis::RedisResult<isize> {
   let _ : () = con.set("schemaImgAlt", collect_url_and_fname[3])?;
   let _ : () = con.set("schemaImgMetaName", collect_url_and_fname[4])?;
   let _ : () = con.set("schemaImgMetaDescription", collect_url_and_fname[5])?;
+  let _ : () = con.set("schemaImgAspectResolution", collect_url_and_fname[6])?;
 
   con.get("schemaImgFileName")
 }
