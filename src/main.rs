@@ -116,7 +116,7 @@ fn get_alt() -> redis::RedisResult<String> {
 
 fn gen_srcset(path :&str, fname: &str) -> String {
   let fullpath = format!("{}/{}", &path, &fname);
-  format!("srcset=\"{},\n{},\n{}\"",format!("{}_o_640_1.jpg 640w", fullpath), format!("{}_o_1280_1.jpg 1280w", fullpath), format!("{}_o_1920_1.jpg 1920w", fullpath))
+  format!("srcset=\"{},\n{},\n{},\n{}\"",format!("{}_o_320_1.jpg 320w", fullpath), format!("{}_o_640_1.jpg 640w", fullpath), format!("{}_o_1280_1.jpg 1280w", fullpath), format!("{}_o_1920_1.jpg 1920w", fullpath))
 }
 
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
