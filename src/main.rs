@@ -159,7 +159,7 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
 
   let ares = get_aspect_resolution().unwrap();
 
-  let mut test_ars : String = "".to_string();
+  let mut div_all : String = "".to_string();
   //1:1_640x640,1280x1280,1920x1920;4:3_640x480,1280x960,1920x1440;16:9_640x360,854x480,1280x720,1920x1080
   for ar in ares.split_terminator(';') {
     //1:1_640x640,1280x1280,1920x1920
@@ -178,13 +178,13 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
       let res_w = item_res[0];
       let res_h = item_res[1];
 
-      test_ars = format!("{}{}", test_ars, div(a_w.parse().unwrap(), a_h.parse().unwrap(), res_w.parse().unwrap(), res_h.parse().unwrap(), url.clone(), fname.clone(), description.clone()));
+      div_all = format!("{}{}", div_all, div(a_w.parse().unwrap(), a_h.parse().unwrap(), res_w.parse().unwrap(), res_h.parse().unwrap(), url.clone(), fname.clone(), description.clone()));
     }
 
   }
 
-  println!("{}", test_ars);
-
+  println!("{}", div_all);
+/*
   let div = format!("{}{}{}{}{}{}{}{}{}{}"
                        , div(16, 9, 640, 360, url.clone(), fname.clone(), description.clone())
                        , div(16, 9, 854, 480, url.clone(), fname.clone(), description.clone())
@@ -196,10 +196,10 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
                        , div(1, 1, 640, 640, url.clone(), fname.clone(), description.clone())
                        , div(1, 1, 1280, 1280, url.clone(), fname.clone(), description.clone())
                        , div(1, 1, 1920, 1920, url, fname, description));
-
+*/
   let bwrapper = "<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">";
   let ewrapper = "</div>";
-  let wrapper = format!("{}\n{}\n{}\n{}\n{}\n{}\n{}", bwrapper, img, meta_name, meta_description, meta_width_height, div, ewrapper);
+  let wrapper = format!("{}\n{}\n{}\n{}\n{}\n{}\n{}", bwrapper, img, meta_name, meta_description, meta_width_height, div_all, ewrapper);
 
   let _ : () = con.set( "schemaOrg", wrapper)?;
 
