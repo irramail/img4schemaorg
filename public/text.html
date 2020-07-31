@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
     <head>
+        <meta charset="utf-8">
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta http-equiv="Pragma" content="no-cache" />
         <meta http-equiv="Expires" content="0" />
@@ -10,7 +11,7 @@
             .large { width: 100%; float: right; }
             .selected { margin: 0; border: 6px solid #60b5cc; }
             .content { margin: 40px auto; width: 100%; }
-	    span { width: 140px; display: inline-block;}
+	          span { width: 140px; display: inline-block;}
             #thumbnails { width: 100%; float: left; }
             h1 { font-family: Verdana; color: #60b5cc; }
         </style>
@@ -25,7 +26,7 @@
 	<div>6. Чтобы скачать архив с изображениями, следует нажать по ссылке Download, которая расположена внизу рабочей области возле миниатюры изображения.</div>
 	<div>7. Если поменять любое из полей или выбрать другой набор разрешений и нажать Retry, будет запущен процесс генерации с старым изображением.</div>
       </div>
-      
+
       <div id="blockAspectRes" name="blockAsppectRes"></div>
         <div id="text">
             <input type="text" id="url" name="url" placeholder="https://" size="50">
@@ -48,14 +49,14 @@
         </div>
         <script>
 
-	  
+
           function set()
           {
 	      var stringOfResolutions = '';
 
 	      var tmp = '';
 	      let map5 = new Map();
-	      
+
 	      Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(x => x.id).forEach(str => str.split("_").map((x) => {
 		  if (x.includes(":")){
 		      tmp=x
@@ -71,7 +72,7 @@
 
 	      map5.forEach((v,k,map) => { stringOfResolutions = stringOfResolutions + ';' + k + '_' + v });
 
-	      
+
               var xhttpSet = new XMLHttpRequest();
               xhttpSet.onreadystatechange = function () {
                   if (this.readyState == 4 && this.status == 200) {
@@ -90,7 +91,7 @@
 
 	  function reTry() {
 	      set();
-	      
+
 	      var xhttpSet = new XMLHttpRequest();
               xhttpSet.onreadystatechange = function () {
                   if (this.readyState == 4 && this.status == 200) {
@@ -106,7 +107,7 @@
           window.onload = function () {
 
 	      let loadSettings = localStorage.getItem('settings').split('|');
-	      
+
 	      document.getElementById("url").value = loadSettings[0];
 	      document.getElementById("fname").value = loadSettings[1];
 	      document.getElementById("description").value = loadSettings[2];
@@ -116,7 +117,7 @@
 	      let loadStringOfResolutions = loadSettings[6];
 
 	      document.getElementById('textLines').innerHTML = localStorage.getItem('textLines');
-	      
+
 	      let aspectRes = [
 		  [[1, 1],
 		   [
@@ -153,17 +154,17 @@
 			  tmp += asr[0] + '_' + res + '|';
 		      });
 		  });
-		  
+
 		  return tmp;
 	      }
 
 	      let listChecked =  genFromLoadedCheckBoxs();
-	      
+
 	      function addBr() {
 		  let block = document.getElementById('blockAspectRes');
 		  block.innerHTML = block.innerHTML + "<br />";
 	      }
-	      
+
 	      function addAspectResToBlock(aX, aY, w, h) {
 		  let id = aX + ":" + aY + "_" + w + "x" + h;
 		  let block = document.getElementById('blockAspectRes');
@@ -173,7 +174,7 @@
 		  let label = '<label for="' + id + '" style="margin-right: 10px;">' + id.replace(/_/, ' ') + '</label>';
 		  block.innerHTML = block.innerHTML + "<span>" + checkBox + label + "</span>";
 	      }
-	      
+
 	      aspectRes.forEach(
 		  oneAspect => {
 		      oneAspect[1].forEach(
@@ -182,7 +183,7 @@
 		      addBr();
 		  }
 	      );
-	      
+
 	      if(!localStorage.getItem('resolution')) {
 		  		  localStorage.setItem('resolution', '');
 }
@@ -191,11 +192,11 @@
 	      function setCheckers() {
 		  for (checker in localStorage.getItem('resolution').split(',')) {
 		      if (checker.length > 0) {
-			  
+
 		      }
 		  }
 	      }
-	      
+
                 var trackTimerVar = setInterval(trackTimer, 5000);
 
                 function trackTimer()
