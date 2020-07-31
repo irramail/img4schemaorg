@@ -1,249 +1,282 @@
 <!doctype html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-        <meta http-equiv="Pragma" content="no-cache" />
-        <meta http-equiv="Expires" content="0" />
-        <style>
-            body { background-color: rgb(180, 180, 180); color: white; }
-            img { border: 1px solid white; margin: 5px; }
-            .large { width: 100%; float: right; }
-            .selected { margin: 0; border: 6px solid #60b5cc; }
-            .content { margin: 40px auto; width: 100%; }
-	          span { width: 140px; display: inline-block;}
-            #thumbnails { width: 100%; float: left; }
-            h1 { font-family: Verdana; color: #60b5cc; }
-        </style>
-    </head>
-    <body>
-      <div>
-	<div>1. Заполнить все однострочные поля.</div>
-	<div>2. Отметить форматы изображения.</div>
-	<div>3. Нажать кнопку Set, чтобы сохранить и отправить настройки на сервер.</div>
-	<div>4. Справа вверху нажать на кнопку Upload Images и выбрать изображение.</div>
-	<div>5. Подождать пока в многострочном текстовом поле появится сгенерированный html текст.</div>
-	<div>6. Чтобы скачать архив с изображениями, следует нажать по ссылке Download (расположена внизу рабочей области).</div>
-	<div>7. Поменять любое из полей или выбрать другой набор разрешений, нажать Retry, процесс генерации будет запущен повторно с последним загруженным изображением.</div>
-      </div>
 
-      <div id="blockAspectRes" name="blockAsppectRes"></div>
-        <div id="text">
-            <input type="text" id="url" name="url" placeholder="https://" size="50">
-            <input type="text" id="fname" name="fname" placeholder="Image">
-            <input type="button" value="Set" onClick="set()">
-	    <input type="button" value="Retry" onClick="reTry()">
-	    <br />
-            <input type="text" id="alt" name="alt" placeholder="alt" size="132"><br />
-            <input type="text" id="metaName" name="metaName" placeholder="Meta name" size="132"><br />
-            <input type="text" id="metaDescription" name="metaDescription" placeholder="Meta description" size="132"><br />
-            <input type="text" id="description" name="description" placeholder="Thumbnail description" size="132"><br />
-            <textarea rows="18" cols="130" name="text" id="textLines" wrap="off"></textarea>
-            <div></div>
-            <div id="wrapperTrack">
-                <div id="track">
-                    <img src="/schema/schemaImg_1.jpg" alt="img" height="100px">
-                    <a href="/schema/schema.tgz" download style="position: relative; top: -90px;">Download</a>
-                </div>
-            </div>
-        </div>
-        <script>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<style>
+		body {
+			background-color: rgb(180, 180, 180);
+			color: white;
+		}
+
+		img {
+			border: 1px solid white;
+			margin: 5px;
+		}
+
+		.large {
+			width: 100%;
+			float: right;
+		}
+
+		.selected {
+			margin: 0;
+			border: 6px solid #60b5cc;
+		}
+
+		.content {
+			margin: 40px auto;
+			width: 100%;
+		}
+
+		span {
+			width: 140px;
+			display: inline-block;
+		}
+
+		#thumbnails {
+			width: 100%;
+			float: left;
+		}
+
+		h1 {
+			font-family: Verdana;
+			color: #60b5cc;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<div>1. Заполнить все однострочные поля.</div>
+		<div>2. Отметить форматы изображения.</div>
+		<div>3. Нажать кнопку Set, чтобы сохранить и отправить настройки на сервер.</div>
+		<div>4. Справа вверху нажать на кнопку Upload Images и выбрать изображение.</div>
+		<div>5. Подождать пока в многострочном текстовом поле появится сгенерированный html текст.</div>
+		<div>6. Чтобы скачать архив с изображениями, следует нажать по ссылке Download (расположена внизу рабочей
+			области).</div>
+		<div>7. Поменять любое из полей или выбрать другой набор разрешений, нажать Retry, процесс генерации будет
+			запущен повторно с последним загруженным изображением.</div>
+	</div>
+
+	<div id="blockAspectRes" name="blockAsppectRes"></div>
+	<div id="text">
+		<input type="text" id="url" name="url" placeholder="https://" size="50">
+		<input type="text" id="fname" name="fname" placeholder="Image">
+		<input type="button" value="Set" onClick="set()">
+		<input type="button" value="Retry" onClick="reTry()">
+		<br />
+		<input type="text" id="alt" name="alt" placeholder="alt" size="132"><br />
+		<input type="text" id="metaName" name="metaName" placeholder="Meta name" size="132"><br />
+		<input type="text" id="metaDescription" name="metaDescription" placeholder="Meta description" size="132"><br />
+		<input type="text" id="description" name="description" placeholder="Thumbnail description" size="132"><br />
+		<textarea rows="18" cols="130" name="text" id="textLines" wrap="off"></textarea>
+		<div></div>
+		<div id="wrapperTrack">
+			<div id="track">
+				<img src="/schema/schemaImg_1.jpg" alt="img" height="100px">
+				<a href="/schema/schema.tgz" download style="position: relative; top: -90px;">Download</a>
+			</div>
+		</div>
+	</div>
+	<script>
 
 
-          function set()
-          {
-	      var stringOfResolutions = '';
+		function set() {
+			var stringOfResolutions = '';
 
-	      var tmp = '';
-	      let map5 = new Map();
+			var tmp = '';
+			let map5 = new Map();
 
-	      Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(x => x.id).forEach(str => str.split("_").map((x) => {
-		  if (x.includes(":")){
-		      tmp=x
-		  } else {
-		      if (map5.get(tmp)) {
-			  map5.set(tmp, map5.get(tmp) + ',' + x)
-		      } else {
-			  map5.set(tmp, x )
- 		      }
-		  }
-	      } ));
-
-
-	      map5.forEach((v,k,map) => { stringOfResolutions = stringOfResolutions + ';' + k + '_' + v });
+			Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(x => x.id).forEach(str => str.split("_").map((x) => {
+				if (x.includes(":")) {
+					tmp = x
+				} else {
+					if (map5.get(tmp)) {
+						map5.set(tmp, map5.get(tmp) + ',' + x)
+					} else {
+						map5.set(tmp, x)
+					}
+				}
+			}));
 
 
-              var xhttpSet = new XMLHttpRequest();
-              xhttpSet.onreadystatechange = function () {
-                  if (this.readyState == 4 && this.status == 200) {
-                      //ok
-                  }
-              };
-              xhttpSet.open("POST", "/api");
-              xhttpSet.setRequestHeader("Content-Type", "application/json");
+			map5.forEach((v, k, map) => { stringOfResolutions = stringOfResolutions + ';' + k + '_' + v });
 
-	      let locSettings = document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value + '|' + stringOfResolutions.substring(1);
 
-	      localStorage.setItem('settings', locSettings);
+			var xhttpSet = new XMLHttpRequest();
+			xhttpSet.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					//ok
+				}
+			};
+			xhttpSet.open("POST", "/api");
+			xhttpSet.setRequestHeader("Content-Type", "application/json");
 
-              xhttpSet.send(JSON.stringify({"jsonrpc": "2.0", "method": "set", "id": 1, "params": [document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value + '|' + stringOfResolutions.substring(1)]}));
-          }
+			let locSettings = document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value + '|' + stringOfResolutions.substring(1);
 
-	  function reTry() {
-	      set();
+			localStorage.setItem('settings', locSettings);
 
-	      var xhttpSet = new XMLHttpRequest();
-              xhttpSet.onreadystatechange = function () {
-                  if (this.readyState == 4 && this.status == 200) {
-                      //ok
-                  }
-              };
-              xhttpSet.open("POST", "/api");
-              xhttpSet.setRequestHeader("Content-Type", "application/json");
+			xhttpSet.send(JSON.stringify({ "jsonrpc": "2.0", "method": "set", "id": 1, "params": [document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value + '|' + stringOfResolutions.substring(1)] }));
+		}
 
-              xhttpSet.send(JSON.stringify({"jsonrpc": "2.0", "method": "reTry", "id": 1, "params": []}));
-	  }
+		function reTry() {
+			set();
 
-          window.onload = function () {
-        var loadStorageRaw = localStorage.getItem('settings');
-        if (!loadStorageRaw)
-          loadStorageRaw = '||||||1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080';
-	      let loadSettings = loadStorageRaw.split('|');
+			var xhttpSet = new XMLHttpRequest();
+			xhttpSet.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					//ok
+				}
+			};
+			xhttpSet.open("POST", "/api");
+			xhttpSet.setRequestHeader("Content-Type", "application/json");
 
-	      document.getElementById("url").value = loadSettings[0];
-	      document.getElementById("fname").value = loadSettings[1];
-	      document.getElementById("description").value = loadSettings[2];
-	      document.getElementById("alt").value = loadSettings[3];
-	      document.getElementById("metaName").value = loadSettings[4];
-	      document.getElementById("metaDescription").value = loadSettings[5];
-	      let loadStringOfResolutions = loadSettings[6];
+			xhttpSet.send(JSON.stringify({ "jsonrpc": "2.0", "method": "reTry", "id": 1, "params": [] }));
+		}
 
-	      document.getElementById('textLines').innerHTML = localStorage.getItem('textLines');
+		window.onload = function () {
+			var loadStorageRaw = localStorage.getItem('settings');
+			if (!loadStorageRaw)
+				loadStorageRaw = '||||||1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080';
+			let loadSettings = loadStorageRaw.split('|');
 
-	      let aspectRes = [
-		  [[1, 1],
-		   [
-		       [320, 320],
-		       [640, 640],
-		       [1280, 1280],
-		       [1920, 1920]
-		   ]
-		  ],
-		  [[4, 3],
-		   [
-		       [320, 240],
-		       [640, 480],
-		       [1280, 960],
-		       [1920, 1440]
-		   ]
-		  ],
-		  [[16, 9],
-		   [
-		       [320, 180],
-		       [640, 360],
-		       [854, 480],
-		       [1280, 720],
-		       [1920, 1080]
-		   ]
-		  ]
-	      ];
+			document.getElementById("url").value = loadSettings[0];
+			document.getElementById("fname").value = loadSettings[1];
+			document.getElementById("description").value = loadSettings[2];
+			document.getElementById("alt").value = loadSettings[3];
+			document.getElementById("metaName").value = loadSettings[4];
+			document.getElementById("metaDescription").value = loadSettings[5];
+			let loadStringOfResolutions = loadSettings[6];
 
-	      function genFromLoadedCheckBoxs() {
-		  var tmp = '|';
-		  loadStringOfResolutions.split(';').forEach(ar => {
-		      let asr = ar.split('_');
-		      asr[1].split(',').forEach(res => {
-			  tmp += asr[0] + '_' + res + '|';
-		      });
-		  });
+			document.getElementById('textLines').innerHTML = localStorage.getItem('textLines');
 
-		  return tmp;
-	      }
+			let aspectRes = [
+				[[1, 1],
+				[
+					[320, 320],
+					[640, 640],
+					[1280, 1280],
+					[1920, 1920]
+				]
+				],
+				[[4, 3],
+				[
+					[320, 240],
+					[640, 480],
+					[1280, 960],
+					[1920, 1440]
+				]
+				],
+				[[16, 9],
+				[
+					[320, 180],
+					[640, 360],
+					[854, 480],
+					[1280, 720],
+					[1920, 1080]
+				]
+				]
+			];
 
-	      let listChecked =  genFromLoadedCheckBoxs();
+			function genFromLoadedCheckBoxs() {
+				var tmp = '|';
+				loadStringOfResolutions.split(';').forEach(ar => {
+					let asr = ar.split('_');
+					asr[1].split(',').forEach(res => {
+						tmp += asr[0] + '_' + res + '|';
+					});
+				});
 
-	      function addBr() {
-		  let block = document.getElementById('blockAspectRes');
-		  block.innerHTML = block.innerHTML + "<br />";
-	      }
+				return tmp;
+			}
 
-	      function addAspectResToBlock(aX, aY, w, h) {
-		  let id = aX + ":" + aY + "_" + w + "x" + h;
-		  let block = document.getElementById('blockAspectRes');
-		  var checked = '';
-		  if (listChecked.includes('|' + id + '|')) checked = 'checked';
-		  let checkBox = '<input type="checkbox" id="'+ id+ '" name="resolution_' + id+ '" value="' + id + '" ' + checked + ' class="res">';
-		  let label = '<label for="' + id + '" style="margin-right: 10px;">' + id.replace(/_/, ' ') + '</label>';
-		  block.innerHTML = block.innerHTML + "<span>" + checkBox + label + "</span>";
-	      }
+			let listChecked = genFromLoadedCheckBoxs();
 
-	      aspectRes.forEach(
-		  oneAspect => {
-		      oneAspect[1].forEach(
-			  oneRes => addAspectResToBlock(oneAspect[0][0], oneAspect[0][1], oneRes[0], oneRes[1])
-		      );
-		      addBr();
-		  }
-	      );
+			function addBr() {
+				let block = document.getElementById('blockAspectRes');
+				block.innerHTML = block.innerHTML + "<br />";
+			}
 
-	      if(!localStorage.getItem('resolution')) {
-		  		  localStorage.setItem('resolution', '');
-}
-	      setCheckers();
+			function addAspectResToBlock(aX, aY, w, h) {
+				let id = aX + ":" + aY + "_" + w + "x" + h;
+				let block = document.getElementById('blockAspectRes');
+				var checked = '';
+				if (listChecked.includes('|' + id + '|')) checked = 'checked';
+				let checkBox = '<input type="checkbox" id="' + id + '" name="resolution_' + id + '" value="' + id + '" ' + checked + ' class="res">';
+				let label = '<label for="' + id + '" style="margin-right: 10px;">' + id.replace(/_/, ' ') + '</label>';
+				block.innerHTML = block.innerHTML + "<span>" + checkBox + label + "</span>";
+			}
 
-	      function setCheckers() {
-		  for (checker in localStorage.getItem('resolution').split(',')) {
-		      if (checker.length > 0) {
+			aspectRes.forEach(
+				oneAspect => {
+					oneAspect[1].forEach(
+						oneRes => addAspectResToBlock(oneAspect[0][0], oneAspect[0][1], oneRes[0], oneRes[1])
+					);
+					addBr();
+				}
+			);
 
-		      }
-		  }
-	      }
+			if (!localStorage.getItem('resolution')) {
+				localStorage.setItem('resolution', '');
+			}
+			setCheckers();
 
-                var trackTimerVar = setInterval(trackTimer, 5000);
+			function setCheckers() {
+				for (checker in localStorage.getItem('resolution').split(',')) {
+					if (checker.length > 0) {
 
-                function trackTimer()
-                {
-                    var xhttpSTexts = new XMLHttpRequest();
-                    xhttpSTexts.onreadystatechange = function () {
-                        if (this.readyState == 4 && this.status == 200) {
-                            var SText = JSON.parse(this.response).result;
-                            if (SText === 'false') {
-                                var track = document.getElementById('track');
-                                if (track.hidden) {
-                                    var wrapperTrack = document.getElementById('wrapperTrack');
+					}
+				}
+			}
 
-                                    innerHTML = '<div id="track"><img src="/schema/schemaImg_1.jpg?nocache=' + Math.floor(Math.random() * 10000000) + '" alt="img" height="100px"><a href="/schema/schema.tgz" download style="position: relative; top: -90px;">Download</a></div>';
-                                    wrapperTrack.innerHTML = innerHTML;
+			var trackTimerVar = setInterval(trackTimer, 5000);
 
-                                    var txts = document.getElementById('textLines');
+			function trackTimer() {
+				var xhttpSTexts = new XMLHttpRequest();
+				xhttpSTexts.onreadystatechange = function () {
+					if (this.readyState == 4 && this.status == 200) {
+						var SText = JSON.parse(this.response).result;
+						if (SText === 'false') {
+							var track = document.getElementById('track');
+							if (track.hidden) {
+								var wrapperTrack = document.getElementById('wrapperTrack');
 
-                                    var xhttpTexts = new XMLHttpRequest();
-                                    xhttpTexts.onreadystatechange = function () {
-                                        if (this.readyState == 4 && this.status == 200) {
-                                            var allText = JSON.parse(this.response).result;
-                                            txts.innerHTML = allText;
-					    localStorage.setItem('textLines', allText);
-                                        }
-                                    };
-                                    xhttpTexts.open("POST", "/api");
-                                    xhttpTexts.setRequestHeader("Content-Type", "application/json");
-                                    xhttpTexts.send(JSON.stringify({"jsonrpc": "2.0", "method": "get_schema_org", "id": 1, "params": []}));
-                                }
+								innerHTML = '<div id="track"><img src="/schema/schemaImg_1.jpg?nocache=' + Math.floor(Math.random() * 10000000) + '" alt="img" height="100px"><a href="/schema/schema.tgz" download style="position: relative; top: -90px;">Download</a></div>';
+								wrapperTrack.innerHTML = innerHTML;
 
-                            } else {
-                                var track = document.getElementById('track');
-                                if (!track.hidden) {
-                                    track.hidden = true;
-                                }
-                            }
-                        }
-                    };
-                    xhttpSTexts.open("POST", "/api");
-                    xhttpSTexts.setRequestHeader("Content-Type", "application/json");
-                    xhttpSTexts.send(JSON.stringify({"jsonrpc": "2.0", "method": "exists_img", "id": 1, "params": []}));
-                }
-            }
-        </script>
-    </body>
+								var txts = document.getElementById('textLines');
+
+								var xhttpTexts = new XMLHttpRequest();
+								xhttpTexts.onreadystatechange = function () {
+									if (this.readyState == 4 && this.status == 200) {
+										var allText = JSON.parse(this.response).result;
+										txts.innerHTML = allText;
+										localStorage.setItem('textLines', allText);
+									}
+								};
+								xhttpTexts.open("POST", "/api");
+								xhttpTexts.setRequestHeader("Content-Type", "application/json");
+								xhttpTexts.send(JSON.stringify({ "jsonrpc": "2.0", "method": "get_schema_org", "id": 1, "params": [] }));
+							}
+
+						} else {
+							var track = document.getElementById('track');
+							if (!track.hidden) {
+								track.hidden = true;
+							}
+						}
+					}
+				};
+				xhttpSTexts.open("POST", "/api");
+				xhttpSTexts.setRequestHeader("Content-Type", "application/json");
+				xhttpSTexts.send(JSON.stringify({ "jsonrpc": "2.0", "method": "exists_img", "id": 1, "params": [] }));
+			}
+		}
+	</script>
+</body>
+
 </html>
-
