@@ -15,6 +15,9 @@ cargo clean && cargo build --release # + opts 3
 
 Error 413 after base64-line length > 1G
 
+#Elm uploader
+elm make src/Main.elm --optimize --output=elmImg.js
+
 # Test
 nc -l 8000 > testElmUploader.b64
 ctrl+c after click upload
