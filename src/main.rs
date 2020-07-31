@@ -256,7 +256,7 @@ fn exists_img() -> redis::RedisResult<bool> {
   con.exists("schemaImg")
 }
 
-fn backup_dchema_img() -> redis::RedisResult<String> {
+fn backup_schema_img() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
@@ -267,7 +267,7 @@ fn retry() -> redis::RedisResult<bool> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
-  let _ : () = con.set( "schemaOrgImg", backup_dchema_img().unwrap())?;
+  let _ : () = con.set( "schemaImg", backup_schema_img().unwrap())?;
   let _ : () = con.set( "schemaOrg", divcreator())?;
 
   con.exists("backupSchemaImg")
