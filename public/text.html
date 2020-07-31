@@ -105,8 +105,10 @@
 	  }
 
           window.onload = function () {
-
-	      let loadSettings = localStorage.getItem('settings').split('|');
+        var loadStorageRaw = localStorage.getItem('settings');
+        if (loadStorageRaw.length = 0)
+          loadStorageRaw = '1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080';
+	      let loadSettings = localStorageRaw.split('|');
 
 	      document.getElementById("url").value = loadSettings[0];
 	      document.getElementById("fname").value = loadSettings[1];
