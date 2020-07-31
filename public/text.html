@@ -79,6 +79,8 @@
           }
 
 	  function reTry() {
+	      set();
+	      
 	      var xhttpSet = new XMLHttpRequest();
               xhttpSet.onreadystatechange = function () {
                   if (this.readyState == 4 && this.status == 200) {
@@ -102,9 +104,8 @@
 	      document.getElementById("metaName").value = loadSettings[4];
 	      document.getElementById("metaDescription").value = loadSettings[5];
 	      let loadStringOfResolutions = loadSettings[6];
-	      
-	      
-	      console.log(loadSettings);
+
+	      document.getElementById('textLines').innerHTML = localStorage.getItem('textLines');
 	      
 	      let aspectRes = [
 		  [[1, 1],
@@ -192,6 +193,7 @@
                                         if (this.readyState == 4 && this.status == 200) {
                                             var allText = JSON.parse(this.response).result;
                                             txts.innerHTML = allText;
+					    localStorage.setItem('textLines', allText);
                                         }
                                     };
                                     xhttpTexts.open("POST", "/api");
