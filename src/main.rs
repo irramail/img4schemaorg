@@ -136,13 +136,65 @@ fn gen_srcset(path :&str, fname: &str) -> String {
   )
 }
 
+fn divcreator() -> String {
+  let mut echo_hello = Command::new("sh");
+  let _status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
+
+  let url= get_url().unwrap();
+  let path = get_path(url.as_str()).unwrap();
+  let fname= get_fname().unwrap();
+  let alt = get_alt().unwrap();
+  let description =  get_description().unwrap();
+
+  let srcset = gen_srcset(path.path(), fname.as_str());
+
+  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), fname.as_str(), alt);
+
+  let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", get_meta_name().unwrap());
+  let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", get_meta_description().unwrap());
+
+  //println!("{} {}", get_width().unwrap(), get_height().unwrap());
+  let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", get_width().unwrap(), get_height().unwrap());
+
+  let ares = get_aspect_resolution().unwrap();
+
+  let mut div_all : String = "".to_string();
+  //1:1_640x640,1280x1280,1920x1920;4:3_640x480,1280x960,1920x1440;16:9_640x360,854x480,1280x720,1920x1080
+  for ar in ares.split_terminator(';') {
+    //1:1_640x640,1280x1280,1920x1920
+    let item_ar : Vec<&str> = ar.split_terminator('_').collect();
+
+    //1:1
+    let a : Vec<&str> = item_ar[0].split_terminator(':').collect();
+
+    //1 1
+    let a_w = a[0];
+    let a_h = a[1];
+
+    //640x640,1280x1280,1920x1920
+    for res in item_ar[1].split_terminator(',') {
+      let item_res : Vec<&str> = res.split_terminator('x').collect();
+      let res_w = item_res[0];
+      let res_h = item_res[1];
+
+      div_all = format!("{}{}", div_all, div(a_w.parse().unwrap(), a_h.parse().unwrap(), res_w.parse().unwrap(), res_h.parse().unwrap(), url.clone(), fname.clone(), description.clone()));
+    }
+
+  }
+
+  let bwrapper = "<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">";
+  let ewrapper = "</div>";
+  format!("{}\n{}\n{}\n{}\n{}\n{}\n{}", bwrapper, img, meta_name, meta_description, meta_width_height, div_all, ewrapper)
+}
+
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
   let img = format!("{}", img);
 
-  let _ : () = con.set("schemaImg", img)?;
-
+  let _ : () = con.set("schemaImg", img.clone())?;
+  let _ : () = con.set("backupSchemaImg", img)?;
+/*
   let mut echo_hello = Command::new("sh");
   let _status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
 
@@ -191,8 +243,8 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let bwrapper = "<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">";
   let ewrapper = "</div>";
   let wrapper = format!("{}\n{}\n{}\n{}\n{}\n{}\n{}", bwrapper, img, meta_name, meta_description, meta_width_height, div_all, ewrapper);
-
-  let _ : () = con.set( "schemaOrg", wrapper)?;
+*/
+  let _ : () = con.set( "schemaOrg", divcreator())?;
 
   con.get("schemaImg")
 }
@@ -204,6 +256,22 @@ fn exists_img() -> redis::RedisResult<bool> {
   con.exists("schemaImg")
 }
 
+fn backup_dchema_img() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("backupSchemaImg")
+}
+
+fn retry() -> redis::RedisResult<bool> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  let _ : () = con.set( "schemaOrgImg", backup_dchema_img().unwrap())?;
+  let _ : () = con.set( "schemaOrg", divcreator())?;
+
+  con.exists("backupSchemaImg")
+}
 fn get_schema_org() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
@@ -242,6 +310,11 @@ fn main() {
   io.add_method("exists_img",  | _params | {
     let bool = exists_img().unwrap().to_string();
     Ok(Value::String(bool))
+  });
+
+  io.add_method("reTry",  | _params | {
+    let _ = retry();
+    Ok(Value::String("".to_string()))
   });
 
   io.add_method("get_schema_org",  | _params | {
