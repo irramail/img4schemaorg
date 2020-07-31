@@ -154,7 +154,7 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
 
   let srcset = gen_srcset(path.path(), fname.as_str());
 
-  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), fname.as_str(), alt);
+  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), fname.as_str(), alt);
 
   let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", get_meta_name().unwrap());
   let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", get_meta_description().unwrap());
