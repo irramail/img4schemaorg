@@ -34,12 +34,15 @@ ares.split(";").foreach( ar => {
   val a_w = aa(0)
   val a_h = aa(1)
 
+	(s"$hd/scripts/aspectcrop -a $a_w:$a_h -g c $wdfn$u$c.jpg $wdfn$u$a_w$u$a_h$u$c.jpg").!
+
   item_ar(1).split(',').foreach( res => {
     val item_res = res.split('x')
     val res_w = item_res(0)
     val res_h = item_res(1)
 
-    println(a_w, a_h, res_w, res_h)
+		println(s"convert $wdfn$u$a_w$u$a_h$u$c.jpg -resize 'x$res_h' $wdfn$u$a_w$u$a_h$u$res_w$u$c.jpg")
+    //println(a_w, a_h, res_w, res_h)
   })
 })
 
