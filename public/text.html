@@ -106,7 +106,7 @@
 
           window.onload = function () {
         var loadStorageRaw = localStorage.getItem('settings');
-        if (loadStorageRaw.length === 0)
+        if (!loadStorageRaw)
           loadStorageRaw = '1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080';
 	      let loadSettings = localStorageRaw.split('|');
 
