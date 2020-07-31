@@ -10,6 +10,7 @@
             .large { width: 100%; float: right; }
             .selected { margin: 0; border: 6px solid #60b5cc; }
             .content { margin: 40px auto; width: 100%; }
+	    span { width: 140px; display: inline-block;}
             #thumbnails { width: 100%; float: left; }
             h1 { font-family: Verdana; color: #60b5cc; }
         </style>
@@ -19,12 +20,14 @@
         <div id="text">
             <input type="text" id="url" name="url" placeholder="https://" size="50">
             <input type="text" id="fname" name="fname" placeholder="Image">
-            <input type="button" value="Set" onClick="set()"><br />
+            <input type="button" value="Set" onClick="set()">
+	    <input type="button" value="Retry" onClick="reTry()">
+	    <br />
             <input type="text" id="alt" name="alt" placeholder="alt" size="132"><br />
             <input type="text" id="metaName" name="metaName" placeholder="Meta name" size="132"><br />
             <input type="text" id="metaDescription" name="metaDescription" placeholder="Meta description" size="132"><br />
             <input type="text" id="description" name="description" placeholder="Thumbnail description" size="132"><br />
-            <textarea rows="30" cols="130" name="text" id="textLines" wrap="off"></textarea>
+            <textarea rows="25" cols="130" name="text" id="textLines" wrap="off"></textarea>
             <div></div>
             <div id="wrapperTrack">
                 <div id="track">
@@ -36,7 +39,7 @@
         <script>
 
 	  
-            function set()
+          function set()
           {
 	      var stringOfResolutions = '';
 
@@ -59,22 +62,54 @@
 	      map5.forEach((v,k,map) => { stringOfResolutions = stringOfResolutions + ';' + k + '_' + v });
 
 	      
-                var xhttpSet = new XMLHttpRequest();
-                xhttpSet.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
-                        //ok
-                    }
-                };
-                xhttpSet.open("POST", "/api");
-                xhttpSet.setRequestHeader("Content-Type", "application/json");
+              var xhttpSet = new XMLHttpRequest();
+              xhttpSet.onreadystatechange = function () {
+                  if (this.readyState == 4 && this.status == 200) {
+                      //ok
+                  }
+              };
+              xhttpSet.open("POST", "/api");
+              xhttpSet.setRequestHeader("Content-Type", "application/json");
+
+	      let locSettings = document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value + '|' + stringOfResolutions.substring(1);
+
+	      localStorage.setItem('settings', locSettings);
+
               xhttpSet.send(JSON.stringify({"jsonrpc": "2.0", "method": "set", "id": 1, "params": [document.getElementById("url").value + '|' + document.getElementById("fname").value + '|' + document.getElementById("description").value + '|' + document.getElementById("alt").value + '|' + document.getElementById("metaName").value + '|' + document.getElementById("metaDescription").value + '|' + stringOfResolutions.substring(1)]}));
-            }
+          }
+
+	  function reTry() {
+	      var xhttpSet = new XMLHttpRequest();
+              xhttpSet.onreadystatechange = function () {
+                  if (this.readyState == 4 && this.status == 200) {
+                      //ok
+                  }
+              };
+              xhttpSet.open("POST", "/api");
+              xhttpSet.setRequestHeader("Content-Type", "application/json");
+
+              xhttpSet.send(JSON.stringify({"jsonrpc": "2.0", "method": "reTry", "id": 1, "params": []}));
+	  }
 
           window.onload = function () {
 
+	      let loadSettings = localStorage.getItem('settings').split('|');
+	      
+	      document.getElementById("url").value = loadSettings[0];
+	      document.getElementById("fname").value = loadSettings[1];
+	      document.getElementById("description").value = loadSettings[2];
+	      document.getElementById("alt").value = loadSettings[3];
+	      document.getElementById("metaName").value = loadSettings[4];
+	      document.getElementById("metaDescription").value = loadSettings[5];
+	      let loadStringOfResolutions = loadSettings[6];
+	      
+	      
+	      console.log(loadSettings);
+	      
 	      let aspectRes = [
 		  [[1, 1],
 		   [
+		       [320, 320],
 		       [640, 640],
 		       [1280, 1280],
 		       [1920, 1920]
@@ -82,6 +117,7 @@
 		  ],
 		  [[4, 3],
 		   [
+		       [320, 240],
 		       [640, 480],
 		       [1280, 960],
 		       [1920, 1440]
@@ -89,6 +125,7 @@
 		  ],
 		  [[16, 9],
 		   [
+		       [320, 180],
 		       [640, 360],
 		       [854, 480],
 		       [1280, 720],
@@ -97,6 +134,11 @@
 		  ]
 	      ];
 
+	      function addBr() {
+		  let block = document.getElementById('blockAspectRes');
+		  block.innerHTML = block.innerHTML + "<br />";
+	      }
+	      
 	      function addAspectResToBlock(aX, aY, w, h) {
 		  let id = aX + ":" + aY + "_" + w + "x" + h;
 		  let block = document.getElementById('blockAspectRes');
@@ -106,9 +148,12 @@
 	      }
 	      
 	      aspectRes.forEach(
-		  oneAspect => oneAspect[1].forEach(
-		      oneRes => addAspectResToBlock(oneAspect[0][0], oneAspect[0][1], oneRes[0], oneRes[1])
-		  )
+		  oneAspect => {
+		      oneAspect[1].forEach(
+			  oneRes => addAspectResToBlock(oneAspect[0][0], oneAspect[0][1], oneRes[0], oneRes[1])
+		      );
+		      addBr();
+		  }
 	      );
 	      
 	      if(!localStorage.getItem('resolution')) {
