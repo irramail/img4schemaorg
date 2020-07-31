@@ -135,6 +135,20 @@
 		  ]
 	      ];
 
+	      function genFromLoadedCheckBoxs() {
+		  var tmp = '|';
+		  loadStringOfResolutions.split(';').forEach(ar => {
+		      let asr = ar.split('_');
+		      asr[1].split(',').forEach(res => {
+			  tmp += asr[0] + '_' + res + '|';
+		      });
+		  });
+		  
+		  return tmp;
+	      }
+
+	      let listChecked =  genFromLoadedCheckBoxs();
+	      
 	      function addBr() {
 		  let block = document.getElementById('blockAspectRes');
 		  block.innerHTML = block.innerHTML + "<br />";
@@ -143,7 +157,9 @@
 	      function addAspectResToBlock(aX, aY, w, h) {
 		  let id = aX + ":" + aY + "_" + w + "x" + h;
 		  let block = document.getElementById('blockAspectRes');
-		  let checkBox = '<input type="checkbox" id="'+ id+ '" name="resolution_' + id+ '" value="' + id + '" checked class="res">';
+		  var checked = '';
+		  if (listChecked.includes('|' + id + '|')) checked = 'checked';
+		  let checkBox = '<input type="checkbox" id="'+ id+ '" name="resolution_' + id+ '" value="' + id + '" ' + checked + ' class="res">';
 		  let label = '<label for="' + id + '" style="margin-right: 10px;">' + id.replace(/_/, ' ') + '</label>';
 		  block.innerHTML = block.innerHTML + "<span>" + checkBox + label + "</span>";
 	      }
