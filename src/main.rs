@@ -6,6 +6,8 @@ use redis::{Commands};
 use jsonrpc_http_server::jsonrpc_core::{IoHandler, Value, Params, Error};
 use jsonrpc_http_server::{ServerBuilder};
 
+use img4schemaorg::*;
+
 fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
   let mut result = Vec::new();
   match p {
@@ -26,15 +28,7 @@ fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
   return Ok(result[0..].to_vec());
 }
 
-fn div(aw:i32, ah:i32, w:i32, h:i32, url: String, fname: String, description: String) -> String {
-  format!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
-    <link itemprop=\"contentUrl\" href=\"{url}/{fname}_{aw}_{ah}_{w}_1.jpg\">
-    <meta itemprop=\"width\" content=\"{w}px\">
-    <meta itemprop=\"height\" content=\"{h}px\">
-    <meta itemprop=\"name\" content=\"{description}. Размер фото {w}x{h}, отношение сторон {aw}:{ah}.\">
-  </div>
-  ", aw=aw.to_string(), ah=ah.to_string(), w=w.to_string(), h=h.to_string(), url = url, fname = fname, description = description)
-}
+
 
 fn set_url_and_fname(url_and_fname: &str) -> redis::RedisResult<isize> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
@@ -328,20 +322,4 @@ fn main() {
   .unwrap();
 
   server.wait();
-}
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn it_div() {
-    assert_eq!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
-    <link itemprop=\"contentUrl\" href=\"https://test.com/assets/images/testname_16_9_640_1.jpg\">
-    <meta itemprop=\"width\" content=\"640px\">
-    <meta itemprop=\"height\" content=\"360px\">
-    <meta itemprop=\"name\" content=\"Description in schema block. Размер фото 640x360, отношение сторон 16:9.\">
-  </div>
-  ", div(16, 9, 640, 360, "https://test.com/assets/images".to_string(), "testname".to_string(), "Description in schema block".to_string()));
-  }
 }
