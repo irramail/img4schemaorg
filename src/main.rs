@@ -120,9 +120,13 @@ fn get_aspect_resolution() -> redis::RedisResult<String> {
   con.get("schemaImgAspectResolution")
 }
 
-fn divcreator() -> String {
+fn run_script() {
   let mut echo_hello = Command::new("sh");
   let _status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
+}
+
+fn divcreator() -> String {
+
 
   let url= get_url().unwrap();
   let path = get_path(url.as_str()).unwrap();
@@ -179,6 +183,7 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let _ : () = con.set("schemaImg", img.clone())?;
   let _ : () = con.set("backupSchemaImg", img)?;
 
+  run_script();
   let _ : () = con.set( "schemaOrg", divcreator())?;
 
   con.get("schemaImg")
@@ -203,6 +208,8 @@ fn retry() -> redis::RedisResult<bool> {
   let mut con = client.get_connection()?;
 
   let _ : () = con.set( "schemaImg", backup_schema_img().unwrap())?;
+
+  run_script();
   let _ : () = con.set( "schemaOrg", divcreator())?;
 
   con.exists("backupSchemaImg")
