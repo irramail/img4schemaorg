@@ -120,16 +120,6 @@ fn get_aspect_resolution() -> redis::RedisResult<String> {
   con.get("schemaImgAspectResolution")
 }
 
-fn gen_srcset(path :&str, fname: &str) -> String {
-  let fullpath = format!("{}/{}", &path, &fname);
-  format!("srcset=\"{},\n{},\n{},\n{}\"",
-          format!("{}_o_320_1.jpg 320w", fullpath),
-          format!("{}_o_640_1.jpg 640w", fullpath),
-          format!("{}_o_1280_1.jpg 1280w", fullpath),
-          format!("{}_o_1920_1.jpg 1920w", fullpath)
-  )
-}
-
 fn divcreator() -> String {
   let mut echo_hello = Command::new("sh");
   let _status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
