@@ -27,28 +27,6 @@ fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
   return Ok(result[0..].to_vec());
 }
 
-fn set_url_and_fname(url_and_fname: &str) -> redis::RedisResult<isize> {
-  let client = redis::Client::open("redis://127.0.0.1/")?;
-  let mut con = client.get_connection()?;
-
-  let collect_url_and_fname: Vec<&str> = url_and_fname.split("|").collect();
-
-  if collect_url_and_fname[0].len() >= 9  {
-    let _ : () = con.set("schemaImgURL", collect_url_and_fname[0])?;
-  } else {
-    let _ : () = con.set("schemaImgURL", "https://test.domain/upload/images")?;
-  };
-
-  let _ : () = con.set("schemaImgFileName", collect_url_and_fname[1])?;
-  let _ : () = con.set("schemaImgDescription", collect_url_and_fname[2])?;
-  let _ : () = con.set("schemaImgAlt", collect_url_and_fname[3])?;
-  let _ : () = con.set("schemaImgMetaName", collect_url_and_fname[4])?;
-  let _ : () = con.set("schemaImgMetaDescription", collect_url_and_fname[5])?;
-  let _ : () = con.set("schemaImgAspectResolution", collect_url_and_fname[6])?;
-
-  con.get("schemaImgFileName")
-}
-
 fn run_script() {
   let mut echo_hello = Command::new("sh");
   let _status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
@@ -123,7 +101,7 @@ fn main() {
 
   io.add_method("set",  move |params: Params| {
     let w = parse_arguments(params)?;
-    let _ = set_url_and_fname( &w[0]);
+    let _ = all_settings( &w[0]);
 
     Ok(Value::String("".to_string()))
   });

@@ -3,14 +3,14 @@ extern crate redis;
 
 use redis::{Commands};
 
-pub fn div(aw:i32, ah:i32, w:i32, h:i32, url: String, fname: String, description: String) -> String {
+pub fn div(aw:i32, ah:i32, w:i32, h:i32, url: &str, file_name: &str, description: &str) -> String {
   format!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
-    <link itemprop=\"contentUrl\" href=\"{url}/{fname}_{aw}_{ah}_{w}_1.jpg\">
+    <link itemprop=\"contentUrl\" href=\"{url}/{file_name}_{aw}_{ah}_{w}_1.jpg\">
     <meta itemprop=\"width\" content=\"{w}px\">
     <meta itemprop=\"height\" content=\"{h}px\">
     <meta itemprop=\"name\" content=\"{description}. Размер фото {w}x{h}, отношение сторон {aw}:{ah}.\">
   </div>
-  ", aw=aw.to_string(), ah=ah.to_string(), w=w.to_string(), h=h.to_string(), url = url, fname = fname, description = description)
+  ", aw=aw.to_string(), ah=ah.to_string(), w=w.to_string(), h=h.to_string(), url = url, file_name = file_name, description = description)
 }
 
 pub fn gen_srcset(path :&str, fname: &str) -> String {
@@ -28,48 +28,6 @@ fn get_path(url : &str) -> Result<Url, ParseError> {
   Ok(parsed)
 }
 
-fn get_url() -> redis::RedisResult<String> {
-  let client = redis::Client::open("redis://127.0.0.1/")?;
-  let mut con = client.get_connection()?;
-
-  con.get("schemaImgURL")
-}
-
-fn get_fname() -> redis::RedisResult<String> {
-  let client = redis::Client::open("redis://127.0.0.1/")?;
-  let mut con = client.get_connection()?;
-
-  con.get("schemaImgFileName")
-}
-
-fn get_alt() -> redis::RedisResult<String> {
-  let client = redis::Client::open("redis://127.0.0.1/")?;
-  let mut con = client.get_connection()?;
-
-  con.get("schemaImgAlt")
-}
-
-fn get_description() -> redis::RedisResult<String> {
-  let client = redis::Client::open("redis://127.0.0.1/")?;
-  let mut con = client.get_connection()?;
-
-  con.get("schemaImgDescription")
-}
-
-fn get_meta_name() -> redis::RedisResult<String> {
-  let client = redis::Client::open("redis://127.0.0.1/")?;
-  let mut con = client.get_connection()?;
-
-  con.get("schemaImgMetaName")
-}
-
-fn get_meta_description() -> redis::RedisResult<String> {
-  let client = redis::Client::open("redis://127.0.0.1/")?;
-  let mut con = client.get_connection()?;
-
-  con.get("schemaImgMetaDescription")
-}
-
 fn get_width() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
@@ -84,31 +42,47 @@ fn get_height() -> redis::RedisResult<String> {
   con.get("schemaImg1Height")
 }
 
-fn get_aspect_resolution() -> redis::RedisResult<String> {
+pub fn all_settings(all_settings: &str) -> redis::RedisResult<isize> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
-  con.get("schemaImgAspectResolution")
+  let _ : () = con.set("schemaImgAllSettings", all_settings)?;
+
+  con.get("schemaImgAllSettings")
+}
+
+fn props() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaImgAllSettings")
 }
 
 pub fn div_creator() -> String {
-  let url= get_url().unwrap();
-  let path = get_path(url.as_str()).unwrap();
-  let fname= get_fname().unwrap();
-  let alt = get_alt().unwrap();
-  let description =  get_description().unwrap();
 
-  let srcset = gen_srcset(path.path(), fname.as_str());
+  let tmp_props = props().unwrap();
 
-  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), fname.as_str(), alt);
+  let props: Vec<&str> = tmp_props.split("|").collect();
 
-  let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", get_meta_name().unwrap());
-  let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", get_meta_description().unwrap());
+  let mut url = "https://test.domain/upload/images";
 
-  //println!("{} {}", get_width().unwrap(), get_height().unwrap());
+  if props[0].len() >= 9 {
+    url = props[0].trim_end_matches('/');
+  }
+
+  let path = get_path(url).unwrap();
+  let file_name= props[1];
+  let description =  props[2];
+  let alt = props[3];
+  let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", props[4]);
+  let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", props[5]);
+  let ares = props[6];
+
+  let srcset = gen_srcset(path.path(), file_name);
+
+  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), file_name, alt);
+
   let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", get_width().unwrap(), get_height().unwrap());
-
-  let ares = get_aspect_resolution().unwrap();
 
   let mut div_all : String = "".to_string();
   //1:1_640x640,1280x1280,1920x1920;4:3_640x480,1280x960,1920x1440;16:9_640x360,854x480,1280x720,1920x1080
@@ -129,7 +103,7 @@ pub fn div_creator() -> String {
       let res_w = item_res[0];
       let res_h = item_res[1];
 
-      div_all = format!("{}{}", div_all, div(a_w.parse().unwrap(), a_h.parse().unwrap(), res_w.parse().unwrap(), res_h.parse().unwrap(), url.clone(), fname.clone(), description.clone()));
+      div_all = format!("{}{}", div_all, div(a_w.parse().unwrap(), a_h.parse().unwrap(), res_w.parse().unwrap(), res_h.parse().unwrap(), url, file_name, description));
     }
 
   }
@@ -151,7 +125,7 @@ mod tests {
     <meta itemprop=\"height\" content=\"360px\">
     <meta itemprop=\"name\" content=\"Description in schema block. Размер фото 640x360, отношение сторон 16:9.\">
   </div>
-  ", div(16, 9, 640, 360, "https://test.com/assets/images".to_string(), "testname".to_string(), "Description in schema block".to_string()));
+  ", div(16, 9, 640, 360, "https://test.com/assets/images", "testname", "Description in schema block"));
   }
 
   #[test]
