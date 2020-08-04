@@ -41,7 +41,8 @@ fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let _ : () = con.set("backupSchemaImg", img)?;
 
   run_script();
-  let _ : () = con.set( "schemaOrg", div_creator())?;
+
+  let _ : () = con.set( "schemaOrg", div_creator(props().unwrap().as_str(), get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
 
   con.get("schemaImg")
 }
@@ -67,7 +68,7 @@ fn retry() -> redis::RedisResult<bool> {
   let _ : () = con.set( "schemaImg", backup_schema_img().unwrap())?;
 
   run_script();
-  let _ : () = con.set( "schemaOrg", div_creator())?;
+  let _ : () = con.set( "schemaOrg", div_creator(props().unwrap().as_str(), get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
 
   con.exists("backupSchemaImg")
 }

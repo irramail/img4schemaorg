@@ -28,14 +28,14 @@ fn get_path(url : &str) -> Result<Url, ParseError> {
   Ok(parsed)
 }
 
-fn get_width() -> redis::RedisResult<String> {
+pub fn get_width() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
   con.get("schemaImg1Width")
 }
 
-fn get_height() -> redis::RedisResult<String> {
+pub  fn get_height() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
@@ -51,17 +51,14 @@ pub fn all_settings(all_settings: &str) -> redis::RedisResult<isize> {
   con.get("schemaImgAllSettings")
 }
 
-fn props() -> redis::RedisResult<String> {
+pub fn props() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
   con.get("schemaImgAllSettings")
 }
 
-pub fn div_creator() -> String {
-
-  let tmp_props = props().unwrap();
-
+pub fn div_creator(tmp_props: &str, width: &str, height: &str) -> String {
   let props: Vec<&str> = tmp_props.split("|").collect();
 
   let mut url = "https://test.domain/upload/images";
@@ -82,7 +79,10 @@ pub fn div_creator() -> String {
 
   let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), file_name, alt);
 
-  let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", get_width().unwrap(), get_height().unwrap());
+  let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", width, height);
+
+  let bwrapper = "<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">";
+  let ewrapper = "</div>";
 
   let mut div_all : String = "".to_string();
   //1:1_640x640,1280x1280,1920x1920;4:3_640x480,1280x960,1920x1440;16:9_640x360,854x480,1280x720,1920x1080
@@ -105,11 +105,8 @@ pub fn div_creator() -> String {
 
       div_all = format!("{}{}", div_all, div(a_w.parse().unwrap(), a_h.parse().unwrap(), res_w.parse().unwrap(), res_h.parse().unwrap(), url, file_name, description));
     }
-
   }
 
-  let bwrapper = "<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">";
-  let ewrapper = "</div>";
   format!("{}\n{}\n{}\n{}\n{}\n{}\n{}", bwrapper, img, meta_name, meta_description, meta_width_height, div_all, ewrapper)
 }
 
@@ -135,5 +132,100 @@ mod tests {
 /path/file_name_o_1280_1.jpg 1280w,
 /path/file_name_o_1920_1.jpg 1920w\"",
     gen_srcset("/path", "file_name"));
+  }
+
+  #[test]
+  fn success_div_creator() {
+    assert_eq!("<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">
+<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" srcset=\"/assets/upload/test_div_all_o_320_1.jpg 320w,
+/assets/upload/test_div_all_o_640_1.jpg 640w,
+/assets/upload/test_div_all_o_1280_1.jpg 1280w,
+/assets/upload/test_div_all_o_1920_1.jpg 1920w\"
+src=\"/assets/upload/test_div_all_1.jpg\"
+alt=\"test_div_all alt\">
+<meta itemprop=\"name\" content=\"test_div_all meta name\">
+<meta itemprop=\"description\" content=\"test_div_all meta description\">
+<meta itemprop=\"width\" content=\"2048px\">
+<meta itemprop=\"height\" content=\"1536px\">
+<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_1_1_320_1.jpg\">
+    <meta itemprop=\"width\" content=\"320px\">
+    <meta itemprop=\"height\" content=\"320px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 320x320, отношение сторон 1:1.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_1_1_640_1.jpg\">
+    <meta itemprop=\"width\" content=\"640px\">
+    <meta itemprop=\"height\" content=\"640px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 640x640, отношение сторон 1:1.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_1_1_1280_1.jpg\">
+    <meta itemprop=\"width\" content=\"1280px\">
+    <meta itemprop=\"height\" content=\"1280px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 1280x1280, отношение сторон 1:1.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_1_1_1920_1.jpg\">
+    <meta itemprop=\"width\" content=\"1920px\">
+    <meta itemprop=\"height\" content=\"1920px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 1920x1920, отношение сторон 1:1.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_4_3_320_1.jpg\">
+    <meta itemprop=\"width\" content=\"320px\">
+    <meta itemprop=\"height\" content=\"240px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 320x240, отношение сторон 4:3.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_4_3_640_1.jpg\">
+    <meta itemprop=\"width\" content=\"640px\">
+    <meta itemprop=\"height\" content=\"480px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 640x480, отношение сторон 4:3.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_4_3_1280_1.jpg\">
+    <meta itemprop=\"width\" content=\"1280px\">
+    <meta itemprop=\"height\" content=\"960px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 1280x960, отношение сторон 4:3.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_4_3_1920_1.jpg\">
+    <meta itemprop=\"width\" content=\"1920px\">
+    <meta itemprop=\"height\" content=\"1440px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 1920x1440, отношение сторон 4:3.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_16_9_320_1.jpg\">
+    <meta itemprop=\"width\" content=\"320px\">
+    <meta itemprop=\"height\" content=\"180px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 320x180, отношение сторон 16:9.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_16_9_640_1.jpg\">
+    <meta itemprop=\"width\" content=\"640px\">
+    <meta itemprop=\"height\" content=\"360px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 640x360, отношение сторон 16:9.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_16_9_854_1.jpg\">
+    <meta itemprop=\"width\" content=\"854px\">
+    <meta itemprop=\"height\" content=\"480px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 854x480, отношение сторон 16:9.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_16_9_1280_1.jpg\">
+    <meta itemprop=\"width\" content=\"1280px\">
+    <meta itemprop=\"height\" content=\"720px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 1280x720, отношение сторон 16:9.\">
+  </div>
+  <div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
+    <link itemprop=\"contentUrl\" href=\"https://test.domain/assets/upload/test_div_all_16_9_1920_1.jpg\">
+    <meta itemprop=\"width\" content=\"1920px\">
+    <meta itemprop=\"height\" content=\"1080px\">
+    <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 1920x1080, отношение сторон 16:9.\">
+  </div>
+  \n</div>",
+    div_creator("https://test.domain/assets/upload|test_div_all|test_div_all thumb description|test_div_all alt|test_div_all meta name|test_div_all meta description|1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080", "2048", "1536"));
   }
 }
