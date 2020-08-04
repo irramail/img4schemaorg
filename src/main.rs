@@ -29,7 +29,7 @@ fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
 
 fn run_script() {
   let mut echo_hello = Command::new("sh");
-  let _status = echo_hello.arg("-c").arg("/home/p6/scripts/schemaImg.sh").status().expect("sh command failed to start");
+  let _status = echo_hello.arg("-c").arg("scripts/schemaImg.sh").status().expect("sh command failed to start");
 }
 
 fn fetch_img(img: &str) -> redis::RedisResult<isize> {
@@ -72,6 +72,7 @@ fn retry() -> redis::RedisResult<bool> {
 
   con.exists("backupSchemaImg")
 }
+
 fn get_schema_org() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
