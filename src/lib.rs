@@ -1,7 +1,77 @@
 use url::{Url, ParseError};
+use jsonrpc_http_server::jsonrpc_core::{IoHandler, Value, Params, Error};
+use jsonrpc_http_server::{ServerBuilder};
+use std::process::Command;
+
 extern crate redis;
 
 use redis::{Commands};
+
+pub fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
+  let mut result = Vec::new();
+  match p {
+    Params::Array(array) => {
+      for s in &array {
+        match s {
+          Value::String(s) => result.push(s.clone()),
+          _ => return Err(Error::invalid_params("expecting strings"))
+        }
+      }
+    }
+    _ => return Err(Error::invalid_params("expecting an array of strings"))
+  }
+  if result.len() < 1 {
+    return Err(Error::invalid_params("missing api key"));
+  }
+
+  return Ok(result[0..].to_vec());
+}
+
+fn run_script() {
+  let mut echo_hello = Command::new("sh");
+  let _status = echo_hello.arg("-c").arg("scripts/schemaImg.sh").status().expect("sh command failed to start");
+}
+
+pub fn fetch_img(img: &str) -> redis::RedisResult<isize> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+  let img = format!("{}", img);
+
+  let _ : () = con.set("schemaImg", img.clone())?;
+  let _ : () = con.set("backupSchemaImg", img)?;
+
+  run_script();
+
+  let _ : () = con.set( "schemaOrg", div_creator(props().unwrap().as_str(), get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
+
+  con.get("schemaImg")
+}
+
+pub fn exists_img() -> redis::RedisResult<bool> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.exists("schemaImg")
+}
+
+pub fn backup_schema_img() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("backupSchemaImg")
+}
+
+pub fn retry() -> redis::RedisResult<bool> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  let _ : () = con.set( "schemaImg", backup_schema_img().unwrap())?;
+
+  run_script();
+  let _ : () = con.set( "schemaOrg", div_creator(props().unwrap().as_str(), get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
+
+  con.exists("backupSchemaImg")
+}
 
 pub fn div(aw:i32, ah:i32, w:i32, h:i32, url: &str, file_name: &str, description: &str) -> String {
   format!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
@@ -108,6 +178,22 @@ pub fn div_creator(tmp_props: &str, width: &str, height: &str) -> String {
   }
 
   format!("{}\n{}\n{}\n{}\n{}\n{}\n{}", bwrapper, img, meta_name, meta_description, meta_width_height, div_all, ewrapper)
+}
+
+pub fn get_schema_org() -> redis::RedisResult<String> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  con.get("schemaOrg")
+}
+
+pub fn set_first_run() -> redis::RedisResult<isize> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  let _ : () = con.del("schemaImg")?;
+
+  con.get("mayBeSomeKey")
 }
 
 #[cfg(test)]
