@@ -1,6 +1,5 @@
 use url::{Url, ParseError};
-use jsonrpc_http_server::jsonrpc_core::{IoHandler, Value, Params, Error};
-use jsonrpc_http_server::{ServerBuilder};
+use jsonrpc_http_server::jsonrpc_core::{Value, Params, Error};
 use std::process::Command;
 
 extern crate redis;
@@ -54,7 +53,7 @@ pub fn exists_img() -> redis::RedisResult<bool> {
   con.exists("schemaImg")
 }
 
-pub fn backup_schema_img() -> redis::RedisResult<String> {
+fn backup_schema_img() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
@@ -73,7 +72,7 @@ pub fn retry() -> redis::RedisResult<bool> {
   con.exists("backupSchemaImg")
 }
 
-pub fn div(aw:i32, ah:i32, w:i32, h:i32, url: &str, file_name: &str, description: &str) -> String {
+fn div(aw:i32, ah:i32, w:i32, h:i32, url: &str, file_name: &str, description: &str) -> String {
   format!("<div itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" itemprop=\"thumbnail\" style=\"display:none;\">
     <link itemprop=\"contentUrl\" href=\"{url}/{file_name}_{aw}_{ah}_{w}_1.jpg\">
     <meta itemprop=\"width\" content=\"{w}px\">
@@ -83,7 +82,7 @@ pub fn div(aw:i32, ah:i32, w:i32, h:i32, url: &str, file_name: &str, description
   ", aw=aw.to_string(), ah=ah.to_string(), w=w.to_string(), h=h.to_string(), url = url, file_name = file_name, description = description)
 }
 
-pub fn gen_srcset(path :&str, fname: &str) -> String {
+fn gen_srcset(path :&str, fname: &str) -> String {
   let fullpath = format!("{}/{}", &path, &fname);
   format!("srcset=\"{},\n{},\n{},\n{}\"",
           format!("{}_o_320_1.jpg 320w", fullpath),
@@ -98,14 +97,14 @@ fn get_path(url : &str) -> Result<Url, ParseError> {
   Ok(parsed)
 }
 
-pub fn get_width() -> redis::RedisResult<String> {
+fn get_width() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
   con.get("schemaImg1Width")
 }
 
-pub  fn get_height() -> redis::RedisResult<String> {
+fn get_height() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
@@ -121,14 +120,14 @@ pub fn all_settings(all_settings: &str) -> redis::RedisResult<isize> {
   con.get("schemaImgAllSettings")
 }
 
-pub fn props() -> redis::RedisResult<String> {
+fn props() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
   con.get("schemaImgAllSettings")
 }
 
-pub fn div_creator(tmp_props: &str, width: &str, height: &str) -> String {
+fn div_creator(tmp_props: &str, width: &str, height: &str) -> String {
   let props: Vec<&str> = tmp_props.split("|").collect();
 
   let mut url = "https://test.domain/upload/images";
