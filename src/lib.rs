@@ -125,6 +125,15 @@ pub fn all_settings(all_settings: &str) -> redis::RedisResult<isize> {
   con.get("schemaImgAllSettings")
 }
 
+fn set_file_name(file_name: &str) -> redis::RedisResult<isize> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  let _ : () = con.set("schemaImgFileName", file_name)?;
+
+  con.get("schemaImgFileName")
+}
+
 fn props() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
@@ -143,6 +152,7 @@ fn div_creator(tmp_props: &str, width: &str, height: &str) -> String {
 
   let path = get_path(url).unwrap();
   let file_name= props[1];
+  let _ = set_file_name(file_name);
   let description =  props[2];
   let alt = props[3];
   let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", props[4]);
