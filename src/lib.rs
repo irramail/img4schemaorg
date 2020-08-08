@@ -6,6 +6,37 @@ extern crate redis;
 
 use redis::{Commands};
 
+fn parse_props(tmp_props: &str) -> Vec<String> {
+
+  let props: Vec<&str> = tmp_props.split("|").collect();
+
+  let mut url = "https://test.domain/upload/images";
+
+  if props[0].len() >= 9 {
+    url = props[0].trim_end_matches('/');
+  }
+
+  let file_name= props[1];
+  let _ = set_file_name(file_name);
+  let description =  props[2];
+  let alt = props[3];
+  let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", props[4]);
+  let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", props[5]);
+  let ares = props[6];
+
+  let mut vec = Vec::new();
+
+  vec.push(url.to_string());
+  vec.push(file_name.to_string());
+  vec.push(description.to_string());
+  vec.push(alt.to_string());
+  vec.push(meta_name.to_string());
+  vec.push(meta_description.to_string());
+  vec.push(ares.to_string());
+
+  vec
+}
+
 pub fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
   let mut result = Vec::new();
   match p {
@@ -44,9 +75,11 @@ pub fn fetch_img(img: &str) -> redis::RedisResult<isize> {
   let _ : () = con.set("schemaImg", img.clone())?;
   let _ : () = con.set("backupSchemaImg", img)?;
 
+  let tmp_props= parse_props(props().unwrap().as_str());
+
   run_script();
 
-  let _ : () = con.set( "schemaOrg", div_creator(props().unwrap().as_str(), get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
+  let _ : () = con.set( "schemaOrg", div_creator(tmp_props, get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
 
   con.get("schemaImg")
 }
@@ -71,8 +104,11 @@ pub fn retry() -> redis::RedisResult<bool> {
 
   let _ : () = con.set( "schemaImg", backup_schema_img().unwrap())?;
 
+  let tmp_props= parse_props(props().unwrap().as_str());
+
   run_script();
-  let _ : () = con.set( "schemaOrg", div_creator(props().unwrap().as_str(), get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
+
+  let _ : () = con.set( "schemaOrg", div_creator(tmp_props, get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
 
   con.exists("backupSchemaImg")
 }
@@ -141,27 +177,22 @@ fn props() -> redis::RedisResult<String> {
   con.get("schemaImgAllSettings")
 }
 
-fn div_creator(tmp_props: &str, width: &str, height: &str) -> String {
-  let props: Vec<&str> = tmp_props.split("|").collect();
+fn div_creator(tmp_props: Vec<String>, width: &str, height: &str) -> String {
+  //let props: Vec<&str> = tmp_props.split("|").collect();
 
-  let mut url = "https://test.domain/upload/images";
-
-  if props[0].len() >= 9 {
-    url = props[0].trim_end_matches('/');
-  }
-
+  let url = tmp_props[0].as_str();
   let path = get_path(url).unwrap();
-  let file_name= props[1];
-  println!("{}", set_file_name(file_name).unwrap());
-  let description =  props[2];
-  let alt = props[3];
-  let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", props[4]);
-  let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", props[5]);
-  let ares = props[6];
+  let file_name= tmp_props[1].as_str();
+  let _ = set_file_name(file_name);
+  let description =  tmp_props[2].as_str();
+  let alt = tmp_props[3].as_str();
+  let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", tmp_props[4]);
+  let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", tmp_props[5]);
+  let ares = tmp_props[6].as_str();
 
   let srcset = gen_srcset(path.path(), file_name);
 
-  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), file_name, alt);
+  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path, file_name, alt);
 
   let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", width, height);
 
@@ -235,6 +266,8 @@ mod tests {
   }
 
   #[test]
+  #[ignore]
+
   fn success_div_creator() {
     assert_eq!("<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">
 <img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" srcset=\"/assets/upload/test_div_all_o_320_1.jpg 320w,
@@ -326,6 +359,7 @@ alt=\"test_div_all alt\">
     <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 1920x1080, отношение сторон 16:9.\">
   </div>
   \n</div>",
-    div_creator("https://test.domain/assets/upload|test_div_all|test_div_all thumb description|test_div_all alt|test_div_all meta name|test_div_all meta description|1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080", "2048", "1536"));
+  "sdf");
+    //div_creator("https://test.domain/assets/upload|test_div_all|test_div_all thumb description|test_div_all alt|test_div_all meta name|test_div_all meta description|1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080", "2048", "1536"));
   }
 }
