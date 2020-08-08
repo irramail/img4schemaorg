@@ -68,6 +68,7 @@
 		<input type="text" id="fname" name="fname" placeholder="Image">
 		<input type="button" value="Set" onClick="set()">
 		<input type="button" value="Retry" onClick="reTry()">
+    <input type="button" value="Upload" onClick="upload()">
 		<br />
 		<input type="text" id="alt" name="alt" placeholder="alt" size="132"><br />
 		<input type="text" id="metaName" name="metaName" placeholder="Meta name" size="132"><br />
@@ -136,6 +137,20 @@
 			xhttpSet.setRequestHeader("Content-Type", "application/json");
 
 			xhttpSet.send(JSON.stringify({ "jsonrpc": "2.0", "method": "reTry", "id": 1, "params": [] }));
+		}
+
+		function upload() {
+
+			var xhttpSet = new XMLHttpRequest();
+			xhttpSet.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					//ok
+				}
+			};
+			xhttpSet.open("POST", "/api");
+			xhttpSet.setRequestHeader("Content-Type", "application/json");
+
+			xhttpSet.send(JSON.stringify({ "jsonrpc": "2.0", "method": "upload", "id": 1, "params": [] }));
 		}
 
 		window.onload = function () {
