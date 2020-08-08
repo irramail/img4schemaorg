@@ -152,7 +152,7 @@ fn div_creator(tmp_props: &str, width: &str, height: &str) -> String {
 
   let path = get_path(url).unwrap();
   let file_name= props[1];
-  let _ = set_file_name(file_name);
+  println!("{}", set_file_name(file_name).unwrap());
   let description =  props[2];
   let alt = props[3];
   let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", props[4]);
