@@ -32,6 +32,11 @@ fn main() {
     Ok(Value::String("".to_string()))
   });
 
+    io.add_method("upload",  | _params | {
+        let _ = upload();
+        Ok(Value::String("".to_string()))
+    });
+
   io.add_method("get_schema_org",  | _params | {
     let schema = get_schema_org().unwrap();
     Ok(Value::String(schema))

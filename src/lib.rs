@@ -26,6 +26,11 @@ pub fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
   return Ok(result[0..].to_vec());
 }
 
+pub fn upload() {
+  let mut echo_hello = Command::new("sh");
+  let _status = echo_hello.arg("-c").arg("scripts/schemaImgUpload.sh").status().expect("sh command failed to start");
+}
+
 fn run_script() {
   let mut echo_hello = Command::new("sh");
   let _status = echo_hello.arg("-c").arg("scripts/schemaImg.sh").status().expect("sh command failed to start");
