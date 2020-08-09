@@ -192,7 +192,7 @@ fn div_creator(tmp_props: Vec<String>, width: &str, height: &str) -> String {
 
   let srcset = gen_srcset(path.path(), file_name);
 
-  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path, file_name, alt);
+  let img = format!("<img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" {}\nsrc=\"{}/{}_1.jpg\"\nalt=\"{}\">", srcset, path.path(), file_name, alt);
 
   let meta_width_height = format!("<meta itemprop=\"width\" content=\"{}px\">\n<meta itemprop=\"height\" content=\"{}px\">", width, height);
 
@@ -266,8 +266,6 @@ mod tests {
   }
 
   #[test]
-  #[ignore]
-
   fn success_div_creator() {
     assert_eq!("<div itemprop=\"image\" itemscope=\"\" itemtype=\"http://schema.org/ImageObject\" class=\"ImageObject_cont\">
 <img decoding=\"async\" itemprop=\"contentUrl\" sizes=\"(max-width: 1280px) 320px, 640px, 1280px\" srcset=\"/assets/upload/test_div_all_o_320_1.jpg 320w,
