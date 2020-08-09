@@ -359,7 +359,14 @@ alt=\"test_div_all alt\">
     <meta itemprop=\"name\" content=\"test_div_all thumb description. Размер фото 1920x1080, отношение сторон 16:9.\">
   </div>
   \n</div>",
-  "sdf");
-    //div_creator("https://test.domain/assets/upload|test_div_all|test_div_all thumb description|test_div_all alt|test_div_all meta name|test_div_all meta description|1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080", "2048", "1536"));
+  div_creator(vec!["https://test.domain/assets/upload".to_string(),
+                   "test_div_all".to_string(),
+                   "test_div_all thumb description".to_string(),
+                   "test_div_all alt".to_string(),
+                   "test_div_all meta name".to_string(),
+                   "test_div_all meta description".to_string(),
+                   "1:1_320x320,640x640,1280x1280,1920x1920;4:3_320x240,640x480,1280x960,1920x1440;16:9_320x180,640x360,854x480,1280x720,1920x1080".to_string()],
+              "2048", "1536")
+    );
   }
 }
