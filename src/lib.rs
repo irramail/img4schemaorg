@@ -20,8 +20,8 @@ fn parse_props(tmp_props: &str) -> Vec<String> {
   let _ = set_file_name(file_name);
   let description =  props[2];
   let alt = props[3];
-  let meta_name = format!("<meta itemprop=\"name\" content=\"{}\">", props[4]);
-  let meta_description =  format!("<meta itemprop=\"description\" content=\"{}\">", props[5]);
+  let meta_name = props[4];
+  let meta_description = props[5];
   let ares = props[6];
 
   let mut vec = Vec::new();
