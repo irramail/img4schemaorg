@@ -6,7 +6,7 @@ extern crate redis;
 
 use redis::{Commands};
 
-fn parse_props(tmp_props: &str) -> Vec<String> {
+pub  fn parse_props(tmp_props: &str) -> Vec<String> {
 
   let props: Vec<&str> = tmp_props.split("|").collect();
 
@@ -62,26 +62,9 @@ pub fn upload() {
   let _status = echo_hello.arg("-c").arg("scripts/schemaImgUpload.sh").status().expect("sh command failed to start");
 }
 
-fn run_script() {
+pub fn run_script() {
   let mut echo_hello = Command::new("sh");
   let _status = echo_hello.arg("-c").arg("scripts/schemaImg.sh").status().expect("sh command failed to start");
-}
-
-pub fn fetch_img(img: &str) -> redis::RedisResult<isize> {
-  let client = redis::Client::open("redis://127.0.0.1/")?;
-  let mut con = client.get_connection()?;
-  let img = format!("{}", img);
-
-  let _ : () = con.set("schemaImg", img.clone())?;
-  let _ : () = con.set("backupSchemaImg", img)?;
-
-  let tmp_props= parse_props(props().unwrap().as_str());
-
-  run_script();
-
-  let _ : () = con.set( "schemaOrg", div_creator(tmp_props, get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
-
-  con.get("schemaImg")
 }
 
 pub fn exists_img() -> redis::RedisResult<bool> {
@@ -138,14 +121,14 @@ fn get_path(url : &str) -> Result<Url, ParseError> {
   Ok(parsed)
 }
 
-fn get_width() -> redis::RedisResult<String> {
+pub fn get_width() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
   con.get("schemaImg1Width")
 }
 
-fn get_height() -> redis::RedisResult<String> {
+pub fn get_height() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
@@ -170,14 +153,14 @@ fn set_file_name(file_name: &str) -> redis::RedisResult<isize> {
   con.get("schemaImgFileName")
 }
 
-fn props() -> redis::RedisResult<String> {
+pub fn props() -> redis::RedisResult<String> {
   let client = redis::Client::open("redis://127.0.0.1/")?;
   let mut con = client.get_connection()?;
 
   con.get("schemaImgAllSettings")
 }
 
-fn div_creator(tmp_props: Vec<String>, width: &str, height: &str) -> String {
+pub fn div_creator(tmp_props: Vec<String>, width: &str, height: &str) -> String {
   //let props: Vec<&str> = tmp_props.split("|").collect();
 
   let url = tmp_props[0].as_str();

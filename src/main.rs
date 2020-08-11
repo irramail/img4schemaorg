@@ -2,6 +2,24 @@ use jsonrpc_http_server::jsonrpc_core::{IoHandler, Value, Params};
 use jsonrpc_http_server::{ServerBuilder};
 
 use img4schemaorg::*;
+use redis::{Commands};
+
+fn fetch_img(img: &str) -> redis::RedisResult<isize> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+  let img = format!("{}", img);
+
+  let _ : () = con.set("schemaImg", img.clone())?;
+  let _ : () = con.set("backupSchemaImg", img)?;
+
+  let tmp_props= parse_props(props().unwrap().as_str());
+
+  run_script();
+
+  let _ : () = con.set( "schemaOrg", div_creator(tmp_props, get_width().unwrap().as_str(), get_height().unwrap().as_str()))?;
+
+  con.get("schemaImg")
+}
 
 fn main() {
   let mut io = IoHandler::new();
