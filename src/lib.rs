@@ -23,6 +23,7 @@ fn parse_props(tmp_props: &str) -> Vec<String> {
   let meta_name = props[4];
   let meta_description = props[5];
   let ares = props[6];
+  let _ = set_ares(ares);
 
   let mut vec = Vec::new();
 
@@ -168,6 +169,15 @@ fn set_file_name(file_name: &str) -> redis::RedisResult<isize> {
   let _ : () = con.set("schemaImgFileName", file_name)?;
 
   con.get("schemaImgFileName")
+}
+
+fn set_ares(a_res: &str) -> redis::RedisResult<isize> {
+  let client = redis::Client::open("redis://127.0.0.1/")?;
+  let mut con = client.get_connection()?;
+
+  let _ : () = con.set("schemaImgAspectResolution", a_res)?;
+
+  con.get("schemaImgAspectResolution")
 }
 
 fn props() -> redis::RedisResult<String> {
