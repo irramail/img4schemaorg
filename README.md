@@ -30,3 +30,10 @@ origin=$(md5sum originFile.ext)
 upload=$(md5sum imageFile.ext)
 
 test "$origin" -eq "$upload" && echo 'Equals' || echo 'No deal'
+
+
+New frontend here:
+https://github.com/irramail/imageobject
+
+<img width="822" alt="Screenshot 2022-12-08 at 1 41 12 AM" src="https://user-images.githubusercontent.com/230784/206268109-d4477ffe-fe6a-4aa4-b68e-b78ae8e182ce.png">
+
